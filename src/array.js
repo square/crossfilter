@@ -4,7 +4,7 @@ var tesseract_array8 = tesseract_arrayUntyped,
     tesseract_arrayLengthen = tesseract_identity,
     tesseract_arrayWiden = tesseract_identity;
 
-if (typeof "Uint8Array" !== "undefined") {
+if (typeof Uint8Array !== "undefined") {
   tesseract_array8 = function(n) { return new Uint8Array(n); };
   tesseract_array16 = function(n) { return new Uint16Array(n); };
   tesseract_array32 = function(n) { return new Uint32Array(n); };
