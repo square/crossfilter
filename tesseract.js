@@ -1,5 +1,5 @@
 (function(exports){
-tesseract.version = "0.0.2";
+tesseract.version = "1.0.0";
 function tesseract_identity(d) {
   return d;
 }
