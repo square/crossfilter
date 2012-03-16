@@ -206,7 +206,8 @@ aside {
 <script src="d3.v2.js"></script>
 <script>
 
-d3.csv("flights-3m.csv", function(flights) {
+// (It's CSV, but GitHub Pages only gzip's JSON at the moment.)
+d3.csv("flights-3m.json", function(flights) {
 
   // Various formatters.
   var formatNumber = d3.format(",d"),
