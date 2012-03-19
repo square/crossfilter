@@ -30,7 +30,7 @@ suite.addBatch({
       sort(array, 0, n);
       duration = Date.now() - start;
       assert.lesser(duration, 500);
-      for (var i = 1; i < n; i++) assert(array[i - 1] <= array[i]);
+      for (var i = 1; i < n; i++) assert(array[i - 1] <= array[i] || isNaN(array[i]));
     }
   })
 });

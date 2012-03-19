@@ -15,6 +15,17 @@ function quicksort_by(f) {
   }
 
   function quicksort(a, lo, hi) {
+    // First move NaN and undefined to the end.
+    var x;
+    while (lo < hi && !((x = f(a[hi - 1])) <= x || x >= x)) hi--;
+    for (var i = hi - 1; --i >= lo; ) {
+      x = f(a[i]);
+      if (!(x <= x || x >= x)) {
+        a[i] = a[hi - 1];
+        a[hi - 1] = x;
+        hi--;
+      }
+    }
 
     // Compute the two pivots by looking at 5 elements.
     var sixth = (hi - lo) / 6 | 0,
