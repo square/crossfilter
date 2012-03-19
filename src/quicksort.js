@@ -21,9 +21,8 @@ function quicksort_by(f) {
     for (var i = hi - 1; --i >= lo; ) {
       x = f(a[i]);
       if (!(x <= x || x >= x)) {
-        a[i] = a[hi - 1];
-        a[hi - 1] = x;
-        hi--;
+        a[i] = a[--hi];
+        a[hi] = x;
       }
     }
 
