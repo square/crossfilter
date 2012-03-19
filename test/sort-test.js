@@ -66,6 +66,7 @@ function batch(sort, extras) {
           untypedArray = new Array(n),
           untypedActual = new Array(n);
       for (var i = 0; i < n; i++) typedArray[i] = untypedArray[i] = Math.random();
+      typedArray[n >> 1] = untypedArray[n >> 1] = NaN;
       assert.strictEqual(sort(typedArray, 0, n), typedArray);
       assert.strictEqual(untypedArray.sort(ascending), untypedArray);
       for (var i = 0; i < n; i++) untypedActual[i] = typedArray[i];
