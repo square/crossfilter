@@ -16,21 +16,8 @@ suite.addBatch({
       start = Date.now();
       sort(typedArray, 0, n);
       duration = Date.now() - start;
-      assert.lesser(duration, 500);
+      assert.lesser(duration, 600);
       for (var i = 1; i < n; i++) assert(typedArray[i - 1] <= typedArray[i]);
-    },
-    "can sort a largeish array containing a mix of finite floats and NaNs": function(sort) {
-      var n = 1e6,
-          array = new Array(n),
-          start,
-          duration;
-      for (var i = 0; i < n >> 2; i++) array[i] = Math.random();
-      for (; i < n; i++) array[i] = NaN; // or undefined
-      start = Date.now();
-      sort(array, 0, n);
-      duration = Date.now() - start;
-      assert.lesser(duration, 500);
-      for (var i = 1; i < n; i++) assert(array[i - 1] <= array[i] || isNaN(array[i]));
     }
   })
 });
@@ -83,6 +70,19 @@ function batch(sort, extras) {
       assert.strictEqual(untypedArray.sort(ascending), untypedArray);
       for (var i = 0; i < n; i++) untypedActual[i] = typedArray[i];
       assert.deepEqual(untypedActual, untypedArray);
+    },
+    "can sort a smallish array containing a mix of finite floats and NaNs quickly": function(sort) {
+      var n = 1e3,
+          array = new Array(n),
+          start,
+          duration;
+      for (var i = 0; i < n >> 2; i++) array[i] = NaN; // or undefined
+      for (; i < n; i++) array[i] = Math.random();
+      start = Date.now();
+      sort(array, 0, n);
+      duration = Date.now() - start;
+      assert.lesser(duration, 500);
+      for (var i = 1; i < n; i++) assert(array[i - 1] <= array[i] || isNaN(array[i]));
     }
   };
   for (var key in extras) batch[key] = extras[key];
