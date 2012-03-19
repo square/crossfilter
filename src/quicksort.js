@@ -45,7 +45,7 @@ function quicksort_by(f) {
         pivot2 = e4, pivotValue2 = x4;
 
     // e2 and e4 have been saved in the pivot variables. They will be written
-    // back, once the partioning is finished.
+    // back, once the partitioning is finished.
     a[i1] = e1;
     a[i2] = a[lo];
     a[i3] = e3;
@@ -61,7 +61,7 @@ function quicksort_by(f) {
     var pivotsEqual = pivotValue1 <= pivotValue2 && pivotValue1 >= pivotValue2;
     if (pivotsEqual) {
 
-      // Degenerated case where the partioning becomes a dutch national flag
+      // Degenerated case where the partitioning becomes a dutch national flag
       // problem.
       //
       // [ |  < pivot  | == pivot | unpartitioned | > pivot  | ]
