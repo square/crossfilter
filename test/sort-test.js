@@ -18,6 +18,19 @@ suite.addBatch({
       duration = Date.now() - start;
       assert.lesser(duration, 500);
       for (var i = 1; i < n; i++) assert(typedArray[i - 1] <= typedArray[i]);
+    },
+    "can sort a largeish array containing a mix of finite floats and NaNs": function(sort) {
+      var n = 1e6,
+          array = new Array(n),
+          start,
+          duration;
+      for (var i = 0; i < n >> 2; i++) array[i] = Math.random();
+      for (; i < n; i++) array[i] = NaN; // or undefined
+      start = Date.now();
+      sort(array, 0, n);
+      duration = Date.now() - start;
+      assert.lesser(duration, 500);
+      for (var i = 1; i < n; i++) assert(array[i - 1] <= array[i]);
     }
   })
 });
@@ -66,7 +79,6 @@ function batch(sort, extras) {
           untypedArray = new Array(n),
           untypedActual = new Array(n);
       for (var i = 0; i < n; i++) typedArray[i] = untypedArray[i] = Math.random();
-      typedArray[n >> 1] = untypedArray[n >> 1] = NaN;
       assert.strictEqual(sort(typedArray, 0, n), typedArray);
       assert.strictEqual(untypedArray.sort(ascending), untypedArray);
       for (var i = 0; i < n; i++) untypedActual[i] = typedArray[i];
