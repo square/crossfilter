@@ -1,1 +1,1 @@
-tesseract.version = "1.0.0";
+tesseract.version = "1.0.1";
