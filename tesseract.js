@@ -527,7 +527,8 @@ function tesseract() {
       M = 8, // number of dimensions that can fit in `filters`
       filters = tesseract_array8(0), // M bits per record; 1 is filtered out
       filterListeners = [], // when the filters change
-      dataListeners = []; // when data is added
+      dataListeners = [], // when data is added
+      dimensions = []; // the dimensions
 
   // Adds the specified new records to this tesseract.
   function add(newData) {
@@ -556,10 +557,13 @@ function tesseract() {
       filterAll: filterAll,
       top: top,
       group: group,
-      groupAll: groupAll
+      groupAll: groupAll,
+      remove: remove,
+      _position: setPosition
     };
 
-    var one = 1 << m++, // bit mask, e.g., 00001000
+    var position = m++,
+        one = 1 << position, // bit mask, e.g., 00001000
         zero = ~one, // inverted one, e.g., 11110111
         values, // sorted, cached array
         index, // value rank ↦ object id
@@ -569,13 +573,16 @@ function tesseract() {
         refilter = tesseract_filterAll, // for recomputing filter
         indexListeners = [], // when data is added
         lo0 = 0,
-        hi0 = 0;
+        hi0 = 0,
+        removeListeners = []; // track listeners for removal
 
     // Updating a dimension is a two-stage process. First, we must update the
     // associated filters for the newly-added records. Once all dimensions have
     // updated their filters, the groups are notified to update.
     dataListeners.unshift(preAdd);
     dataListeners.push(postAdd);
+    removeListeners.push(preAdd);
+    removeListeners.push(postAdd);
 
     // Incorporate any existing data into this dimension, and make sure that the
     // filter bitset is wide enough to handle the new dimension.
@@ -769,6 +776,7 @@ function tesseract() {
       // that it can update the associated reduce values. It must also listen to
       // the parent dimension for when data is added, and compute new keys.
       filterListeners.push(update);
+      removeListeners.push(update);
       indexListeners.push(add);
 
       // Incorporate any existing data into the grouping.
@@ -871,6 +879,7 @@ function tesseract() {
           groupIndex = null;
         }
         filterListeners[j] = update;
+        removeListeners.push(update);
 
         // Count the number of added groups,
         // and widen the group index as needed.
@@ -1036,6 +1045,34 @@ function tesseract() {
       return g;
     }
 
+    // Remove this dimension.
+    function remove() {
+      var before = -1 << 32 - position,
+          after = -1 >>> position,
+          x;
+      for (var i = 0; i < n; i++) {
+        filters[i] = (x = filters[i]) & before | x << 1 & after;
+      }
+      dimensions.slice(position).forEach(function(d, i) {
+        d._position(position + i);
+      });
+      removeListeners.forEach(function(l) {
+        var i = dataListeners.indexOf(l);
+        if (i >= 0) dataListeners.splice(i, 1);
+        i = filterListeners.indexOf(l);
+        if (i >= 0) filterListeners.splice(i, 1);
+      });
+      m--;
+    }
+
+    // Set bit position (internal use only).
+    function setPosition(i) {
+      position = i;
+      one = 1 << position;
+      zero = ~one;
+    }
+
+    dimensions.push(dimension);
     return dimension;
   }
 
