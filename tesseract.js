@@ -1053,6 +1053,7 @@ function tesseract() {
       for (var i = 0; i < n; i++) {
         filters[i] = (x = filters[i]) & before | x << 1 & after;
       }
+      dimensions.splice(position, 1);
       dimensions.slice(position).forEach(function(d, i) {
         d._position(position + i);
       });
@@ -1063,6 +1064,7 @@ function tesseract() {
         if (i >= 0) filterListeners.splice(i, 1);
       });
       m--;
+      return dimension;
     }
 
     // Set bit position (internal use only).
