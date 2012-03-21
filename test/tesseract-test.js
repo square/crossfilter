@@ -487,6 +487,17 @@ suite.addBatch({
             }
           }
         }
+      },
+
+      "remove": function() {
+        var data = tesseract([]);
+        var dimensions = d3.range(32).map(function(i) {
+          return data.dimension(function() { return 0; });
+        });
+        dimensions.forEach(function(d) {
+          d.remove();
+        });
+        data.dimension(function() { return 0; });
       }
     },
 
