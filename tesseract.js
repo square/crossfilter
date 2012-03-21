@@ -1046,6 +1046,7 @@ function tesseract() {
 
     // Remove this dimension.
     function remove() {
+      filterAll();
       var before = position ? -1 >>> 32 - position : 0, // mask for positions before this one
           after = -1 << position, // mask for positions after this one
           x,
