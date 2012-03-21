@@ -554,8 +554,7 @@ function tesseract() {
     }
 
     positions.push(function(i) {
-      position = i;
-      one = 1 << position;
+      one = 1 << (position = i);
       zero = ~one;
     });
 
