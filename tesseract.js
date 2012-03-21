@@ -558,8 +558,7 @@ function tesseract() {
       top: top,
       group: group,
       groupAll: groupAll,
-      remove: remove,
-      _position: setPosition
+      remove: remove
     };
 
     var position = m++,
@@ -1054,8 +1053,8 @@ function tesseract() {
         filters[i] = (x = filters[i]) & before | x << 1 & after;
       }
       dimensions.splice(position, 1);
-      dimensions.slice(position).forEach(function(d, i) {
-        d._position(position + i);
+      dimensions.slice(position).forEach(function(setPosition, i) {
+        setPosition(position + i);
       });
       removeListeners.forEach(function(l) {
         var i = dataListeners.indexOf(l);
@@ -1067,14 +1066,12 @@ function tesseract() {
       return dimension;
     }
 
-    // Set bit position (internal use only).
-    function setPosition(i) {
+    dimensions.push(function(i) {
       position = i;
       one = 1 << position;
       zero = ~one;
-    }
+    });
 
-    dimensions.push(dimension);
     return dimension;
   }
 
