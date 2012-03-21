@@ -1046,11 +1046,11 @@ function tesseract() {
 
     // Remove this dimension.
     function remove() {
-      var before = -1 << 32 - position,
-          after = -1 >>> position,
+      var before = position ? -1 >>> 32 - position : 0, // mask for positions before this one
+          after = -1 << position, // mask for positions after this one
           x;
       for (var i = 0; i < n; i++) {
-        filters[i] = (x = filters[i]) & before | x << 1 & after;
+        filters[i] = (x = filters[i]) & before | x >>> 1 & after;
       }
       positions.splice(position, 1);
       positions.slice(position).forEach(function(setPosition, i) {
