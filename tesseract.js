@@ -528,7 +528,7 @@ function tesseract() {
       filters = tesseract_array8(0), // M bits per record; 1 is filtered out
       filterListeners = [], // when the filters change
       dataListeners = [], // when data is added
-      dimensions = []; // the dimensions
+      positions = []; // for resetting dimension positions
 
   // Adds the specified new records to this tesseract.
   function add(newData) {
@@ -1052,8 +1052,8 @@ function tesseract() {
       for (var i = 0; i < n; i++) {
         filters[i] = (x = filters[i]) & before | x << 1 & after;
       }
-      dimensions.splice(position, 1);
-      dimensions.slice(position).forEach(function(setPosition, i) {
+      positions.splice(position, 1);
+      positions.slice(position).forEach(function(setPosition, i) {
         setPosition(position + i);
       });
       removeListeners.forEach(function(l) {
@@ -1066,7 +1066,7 @@ function tesseract() {
       return dimension;
     }
 
-    dimensions.push(function(i) {
+    positions.push(function(i) {
       position = i;
       one = 1 << position;
       zero = ~one;
