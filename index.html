@@ -228,16 +228,16 @@ d3.csv("flights-3m.json", function(flights) {
   });
 
   // Create the tesseract and relevant dimensions and groups.
-  flight = tesseract(flights),
-  all = flight.groupAll(),
-  date = flight.dimension(function(d) { return d3.time.day(d.date); }),
-  dates = date.group(),
-  hour = flight.dimension(function(d) { return d.date.getHours() + d.date.getMinutes() / 60; }),
-  hours = hour.group(Math.floor),
-  delay = flight.dimension(function(d) { return Math.max(-60, Math.min(149, d.delay)); }),
-  delays = delay.group(function(d) { return Math.floor(d / 10) * 10; }),
-  distance = flight.dimension(function(d) { return Math.min(1999, d.distance); }),
-  distances = distance.group(function(d) { return Math.floor(d / 50) * 50; });
+  var flight = tesseract(flights),
+      all = flight.groupAll(),
+      date = flight.dimension(function(d) { return d3.time.day(d.date); }),
+      dates = date.group(),
+      hour = flight.dimension(function(d) { return d.date.getHours() + d.date.getMinutes() / 60; }),
+      hours = hour.group(Math.floor),
+      delay = flight.dimension(function(d) { return Math.max(-60, Math.min(149, d.delay)); }),
+      delays = delay.group(function(d) { return Math.floor(d / 10) * 10; }),
+      distance = flight.dimension(function(d) { return Math.min(1999, d.distance); }),
+      distances = distance.group(function(d) { return Math.floor(d / 50) * 50; });
 
   var charts = [
 
