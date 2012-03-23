@@ -228,6 +228,9 @@ d3.csv("flights-3m.json", function(flights) {
   });
 
   // Create the tesseract and relevant dimensions and groups.
+  // These are globals so they can be played with in the console; in
+  // production you'll probably want to use scoped variables to avoid polluting
+  // the global namespace.
   flight = tesseract(flights),
   all = flight.groupAll(),
   date = flight.dimension(function(d) { return d3.time.day(d.date); }),
