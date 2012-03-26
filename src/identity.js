@@ -1,3 +1,3 @@
-function tesseract_identity(d) {
+function crossfilter_identity(d) {
   return d;
 }

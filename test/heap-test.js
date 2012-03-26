@@ -1,13 +1,13 @@
 var vows = require("vows"),
     assert = require("assert"),
-    tesseract = require("../");
+    crossfilter = require("../");
 
 var suite = vows.describe("heap");
 
 suite.addBatch({
   "heap": {
     topic: function() {
-      return tesseract.heap;
+      return crossfilter.heap;
     },
     "children are greater than or equal to parents": function(heap) {
       var array = [6, 5, 3, 1, 8, 7, 2, 4]

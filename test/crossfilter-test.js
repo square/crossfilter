@@ -1,14 +1,14 @@
 var vows = require("vows"),
     assert = require("assert"),
     d3 = require("d3"),
-    tesseract = require("../");
+    crossfilter = require("../");
 
-var suite = vows.describe("tesseract");
+var suite = vows.describe("crossfilter");
 
 suite.addBatch({
-  "tesseract": {
+  "crossfilter": {
     topic: function() {
-      var data = tesseract([
+      var data = crossfilter([
         {date: "2011-11-14T16:17:54Z", quantity: 2, total: 190, tip: 100, type: "tab"},
         {date: "2011-11-14T16:20:19Z", quantity: 2, total: 190, tip: 100, type: "tab"},
         {date: "2011-11-14T16:28:54Z", quantity: 1, total: 300, tip: 200, type: "visa"},
@@ -69,7 +69,7 @@ suite.addBatch({
     },
 
     "up to 32 dimensions supported": function() {
-      var data = tesseract([]);
+      var data = crossfilter([]);
       for (var i = 0; i < 32; i++) data.dimension(function() { return 0; });
       assert.throws(function() { data.dimension(function() { return 0; }); }, Error);
     },
@@ -391,7 +391,7 @@ suite.addBatch({
         },
 
         "cardinality may be greater than 256": function() {
-          var data = tesseract(d3.range(256).concat(256, 256)),
+          var data = crossfilter(d3.range(256).concat(256, 256)),
               index = data.dimension(function(d) { return d; }),
               indexes = index.group();
           assert.deepEqual(index.top(2), [256, 256]);
@@ -400,7 +400,7 @@ suite.addBatch({
         },
 
         "cardinality may be greater than 65536": function() {
-          var data = tesseract(d3.range(65536).concat(65536, 65536)),
+          var data = crossfilter(d3.range(65536).concat(65536, 65536)),
               index = data.dimension(function(d) { return d; }),
               indexes = index.group();
           assert.deepEqual(index.top(2), [65536, 65536]);
@@ -547,8 +547,8 @@ suite.addBatch({
     },
 
     "add": {
-      "increases the size of the tesseract": function() {
-        var data = tesseract([]);
+      "increases the size of the crossfilter": function() {
+        var data = crossfilter([]);
         assert.equal(data.size(), 0);
         data.add([0, 1, 2, 3, 4, 5, 6, 6, 6, 7]);
         assert.equal(data.size(), 10);
@@ -556,7 +556,7 @@ suite.addBatch({
         assert.equal(data.size(), 10);
       },
       "existing filters are consistent with new records": function(data) {
-        var data = tesseract([]),
+        var data = crossfilter([]),
             foo = data.dimension(function(d) { return +d; }),
             bar = data.dimension(function(d) { return -d; });
         assert.deepEqual(foo.top(Infinity), []);
@@ -582,7 +582,7 @@ suite.addBatch({
         assert.deepEqual(bar.top(Infinity), [0, 41, 42, 42, 43, 43, 43, 43]);
       },
       "existing groups are consistent with new records": function(data) {
-        var data = tesseract([]),
+        var data = crossfilter([]),
             foo = data.dimension(function(d) { return +d; }),
             bar = data.dimension(function(d) { return -d; }),
             foos = foo.group(),
@@ -606,7 +606,7 @@ suite.addBatch({
         assert.equal(all.value(), 6);
       },
       "can add new groups that are before existing groups": function(data) {
-        var data = tesseract(),
+        var data = crossfilter(),
             foo = data.dimension(function(d) { return +d; }),
             foos = foo.group().reduce(add, remove, initial).order(order);
         data.add([2]).add([1, 1, 1]);
@@ -617,7 +617,7 @@ suite.addBatch({
         function initial() { return {foo: 0}; }
       },
       "can add more than 256 groups": function(data) {
-        var data = tesseract(),
+        var data = crossfilter(),
             foo = data.dimension(function(d) { return +d; }),
             bar = data.dimension(function(d) { return +d; }),
             foos = foo.group();
@@ -632,7 +632,7 @@ suite.addBatch({
         assert.deepEqual(foos.top(1), [{key: 0, value: 1}]);
       },
       "can add lots of groups in reverse order": function(data) {
-        var data = tesseract(),
+        var data = crossfilter(),
             foo = data.dimension(function(d) { return -d.foo; }),
             bar = data.dimension(function(d) { return d.bar; }),
             foos = foo.group(Math.floor).reduceSum(function(d) { return d.foo; });

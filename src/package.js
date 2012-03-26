@@ -1,9 +1,9 @@
 var util = require("util"),
-    tesseract = require("../tesseract").tesseract;
+    crossfilter = require("../crossfilter").crossfilter;
 
 util.puts(JSON.stringify({
-  "name": "tesseract",
-  "version": tesseract.version,
+  "name": "crossfilter",
+  "version": crossfilter.version,
   "private": true,
   "main": "./index.js",
   "devDependencies": {

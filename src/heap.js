@@ -1,4 +1,4 @@
-var heap = tesseract.heap = heap_by(tesseract_identity);
+var heap = crossfilter.heap = heap_by(crossfilter_identity);
 
 heap.by = heap_by;
 

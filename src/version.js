@@ -1,1 +1,1 @@
-tesseract.version = "1.0.1";
+crossfilter.version = "1.0.2";

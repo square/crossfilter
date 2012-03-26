@@ -1,4 +1,4 @@
-var insertionsort = tesseract.insertionsort = insertionsort_by(tesseract_identity);
+var insertionsort = crossfilter.insertionsort = insertionsort_by(crossfilter_identity);
 
 insertionsort.by = insertionsort_by;
 

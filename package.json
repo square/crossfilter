@@ -1,6 +1,6 @@
 {
-  "name": "tesseract",
-  "version": "1.0.1",
+  "name": "crossfilter",
+  "version": "1.0.2",
   "private": true,
   "main": "./index.js",
   "devDependencies": {

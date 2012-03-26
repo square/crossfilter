@@ -1,7 +1,7 @@
 // Algorithm designed by Vladimir Yaroslavskiy.
 // Implementation based on the Dart project; see lib/dart/LICENSE for details.
 
-var quicksort = tesseract.quicksort = quicksort_by(tesseract_identity);
+var quicksort = crossfilter.quicksort = quicksort_by(crossfilter_identity);
 
 quicksort.by = quicksort_by;
 

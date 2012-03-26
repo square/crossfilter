@@ -1,12 +1,12 @@
 var vows = require("vows"),
     assert = require("assert"),
-    tesseract = require("../");
+    crossfilter = require("../");
 
 var suite = vows.describe("sort");
 
 suite.addBatch({
-  "insertionsort": batch(tesseract.insertionsort),
-  "quicksort": batch(tesseract.quicksort, {
+  "insertionsort": batch(crossfilter.insertionsort),
+  "quicksort": batch(crossfilter.quicksort, {
     "can sort a largeish Uint32Array quickly": function(sort) {
       var n = 1e6,
           typedArray = new Uint32Array(n),
