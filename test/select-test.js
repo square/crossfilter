@@ -52,6 +52,7 @@ function descending(a, b) {
 }
 
 function heapy(array) {
+  var n = array.length;
   for (var i = 1; i < n; ++i) {
     if (array[i] < array[i - 1 >> 1]) {
       return false;
