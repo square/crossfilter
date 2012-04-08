@@ -30,6 +30,8 @@ function quicksort_by(f) {
         e4 = a[i4], x4 = f(e4),
         e5 = a[i5], x5 = f(e5);
 
+    var t;
+
     // Sort the selected 5 elements using a sorting network.
     if (x1 > x2) t = e1, e1 = e2, e2 = t, t = x1, x1 = x2, x2 = t;
     if (x4 > x5) t = e4, e4 = e5, e5 = t, t = x4, x4 = x5, x5 = t;

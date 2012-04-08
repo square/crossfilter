@@ -377,7 +377,8 @@ function crossfilter() {
 
         var i,
             k,
-            n;
+            n,
+            g;
 
         // Add the added values.
         for (i = 0, n = added.length; i < n; ++i) {
