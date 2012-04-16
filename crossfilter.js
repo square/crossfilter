@@ -679,6 +679,9 @@ function crossfilter() {
           filters[k = index[i]] ^= one;
           added.push(k);
         }
+        // expand hi0/lo0 range
+        if(lo0 > lo1) lo0 = lo1;
+        if(hi0 < hi1) hi0 = hi1;
       } else {
         // Fast incremental update based on previous lo index.
         if (lo1 < lo0) {
