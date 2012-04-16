@@ -56,7 +56,9 @@ function crossfilter() {
         refilter = crossfilter_filterAll, // for recomputing filter
         indexListeners = [], // when data is added
         lo0 = 0,
-        hi0 = 0;
+        hi0 = 0,
+        union = false, // true when evaluating multiple filters
+        resetNeeded = false; // true after union filter operation (lo0/hi0 invalid)
 
     // Updating a dimension is a two-stage process. First, we must update the
     // associated filters for the newly-added records. Once all dimensions have
@@ -147,34 +149,55 @@ function crossfilter() {
           added = [],
           removed = [];
 
-      // Fast incremental update based on previous lo index.
-      if (lo1 < lo0) {
-        for (i = lo1, j = Math.min(lo0, hi1); i < j; ++i) {
+      if(resetNeeded) {
+        // lo0/hi0 invalid - select all and reset
+        for(i = 0; i < n; ++i) {
+          if(filters[k = index[i]] & one) {
+            filters[k] ^= one;
+            added.push(k);
+          }
+        }
+        lo0 = 0;
+        hi0 = values.length;
+        resetNeeded = false;
+      }
+      if(union) {
+        for(i = lo1, j = hi1; i < j; ++i) {
           filters[k = index[i]] ^= one;
           added.push(k);
         }
-      } else if (lo1 > lo0) {
-        for (i = lo0, j = Math.min(lo1, hi0); i < j; ++i) {
-          filters[k = index[i]] ^= one;
-          removed.push(k);
+        // expand hi0/lo0 range
+        if(lo0 > lo1) lo0 = lo1;
+        if(hi0 < hi1) hi0 = hi1;
+      } else {
+        // Fast incremental update based on previous lo index.
+        if (lo1 < lo0) {
+          for (i = lo1, j = Math.min(lo0, hi1); i < j; ++i) {
+            filters[k = index[i]] ^= one;
+            added.push(k);
+          }
+        } else if (lo1 > lo0) {
+          for (i = lo0, j = Math.min(lo1, hi0); i < j; ++i) {
+            filters[k = index[i]] ^= one;
+            removed.push(k);
+          }
         }
-      }
 
-      // Fast incremental update based on previous hi index.
-      if (hi1 > hi0) {
-        for (i = Math.max(lo1, hi0), j = hi1; i < j; ++i) {
-          filters[k = index[i]] ^= one;
-          added.push(k);
+        // Fast incremental update based on previous hi index.
+        if (hi1 > hi0) {
+          for (i = Math.max(lo1, hi0), j = hi1; i < j; ++i) {
+            filters[k = index[i]] ^= one;
+            added.push(k);
+          }
+        } else if (hi1 < hi0) {
+          for (i = Math.max(lo0, hi1), j = hi0; i < j; ++i) {
+            filters[k = index[i]] ^= one;
+            removed.push(k);
+          }
         }
-      } else if (hi1 < hi0) {
-        for (i = Math.max(lo0, hi1), j = hi0; i < j; ++i) {
-          filters[k = index[i]] ^= one;
-          removed.push(k);
-        }
+        lo0 = lo1;
+        hi0 = hi1;
       }
-
-      lo0 = lo1;
-      hi0 = hi1;
       filterListeners.forEach(function(l) { l(one, added, removed); });
       return dimension;
     }
@@ -184,10 +207,25 @@ function crossfilter() {
     // If the range is an array, this is equivalent to filterRange.
     // Otherwise, this is equivalent to filterExact.
     function filter(range) {
-      return range == null
+      if(arguments.length > 1) {
+        var result,i,len;
+        for(i=0,len=arguments.length; i < len; ++i) {
+          if(i==1) union=true;
+          range = arguments[i];
+          if(Array.isArray(range))
+            filterRange(range);
+          else
+            filterExact(range);
+        }
+        union = false;
+        resetNeeded = true;
+        return arguments[len-1];
+      } else {
+        return range == null
           ? filterAll() : Array.isArray(range)
           ? filterRange(range)
           : filterExact(range);
+      }
     }
 
     // Filters this dimension to select the exact value.
