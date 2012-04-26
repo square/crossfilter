@@ -1,5 +1,5 @@
 (function(exports){
-crossfilter.version = "1.0.2";
+crossfilter.version = "1.0.3";
 function crossfilter_identity(d) {
   return d;
 }
@@ -184,6 +184,8 @@ function quicksort_by(f) {
         e3 = a[i3], x3 = f(e3),
         e4 = a[i4], x4 = f(e4),
         e5 = a[i5], x5 = f(e5);
+
+    var t;
 
     // Sort the selected 5 elements using a sorting network.
     if (x1 > x2) t = e1, e1 = e2, e2 = t, t = x1, x1 = x2, x2 = t;
@@ -890,7 +892,8 @@ function crossfilter() {
 
         var i,
             k,
-            n;
+            n,
+            g;
 
         // Add the added values.
         for (i = 0, n = added.length; i < n; ++i) {

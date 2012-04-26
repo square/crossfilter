@@ -1,1 +1,1 @@
-crossfilter.version = "1.0.2";
+crossfilter.version = "1.0.3";
