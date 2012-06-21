@@ -557,7 +557,7 @@ function crossfilter() {
       filterRange: filterRange,
       filterAll: filterAll,
       top: top,
-      topAsc: topAsc,
+      bottom: bottom,
       group: group,
       groupAll: groupAll
     };
@@ -741,7 +741,7 @@ function crossfilter() {
     
     // Basically same as top but on ascending order
     // Note: observes this dimension's filter, unlike group and groupAll.
-    function topAsc(k) {
+    function bottom(k) {
       var array = [],
           i = lo0,
           j;
