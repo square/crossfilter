@@ -29,7 +29,7 @@ function bisect_by(f) {
   // a[i:hi] for the right side.
   function bisectLeft(a, x, lo, hi) {
     while (lo < hi) {
-      var mid = lo + hi >> 1;
+      var mid = lo + hi >>> 1;
       if (f(a[mid]) < x) lo = mid + 1;
       else hi = mid;
     }
@@ -44,7 +44,7 @@ function bisect_by(f) {
   // a[i:hi] for the right side.
   function bisectRight(a, x, lo, hi) {
     while (lo < hi) {
-      var mid = lo + hi >> 1;
+      var mid = lo + hi >>> 1;
       if (x < f(a[mid])) hi = mid;
       else lo = mid + 1;
     }
