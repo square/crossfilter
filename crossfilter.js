@@ -504,7 +504,7 @@ function crossfilter_reduceDecrement(p) {
 
 function crossfilter_reduceAdd(f) {
   return function(p, v) {
-    return p + +f(v);
+    return p + (+f(v));
   };
 }
 
