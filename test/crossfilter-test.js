@@ -223,6 +223,10 @@ suite.addBatch({
       },
 
       "filter": {
+        topic: function(data) {
+          data.all = data.groupAll();
+          return data;
+        },
         "is equivalent to filterRange when passed an array": function(data) {
           try {
             data.total.filter([100, 190]);
@@ -248,10 +252,22 @@ suite.addBatch({
         "can be passed multiple arguments and returns union of filters": function(data) {
           try {
             data.total.filter([0, 100], 190, [200, 300]);
-            assert.isTrue(data.total.top(Infinity).every(function(d) { return (d.total >= 0 && d.total < 100) || (d.total >= 200 && d.total < 300) || d.total == 190; }));
+            assert.isTrue(data.total.top(Infinity).every(function(d) {
+              return d.total >= 0 && d.total < 100 || d.total >= 200 && d.total < 300 || d.total == 190;
+            }));
             assert.equal(data.total.top(Infinity).length, 38);
           } finally {
-            data.total.filterAll();
+            data.total.filter(null);
+          }
+        },
+        "groupAll() works after union of filters followed by single filter": function(data) {
+          try {
+            data.total.filter(190, [0, 100], [200, 300]);
+            data.all.value();
+            data.total.filter([200, 300]);
+            assert.equal(data.all.value(), 8);
+          } finally {
+            data.total.filter(null);
           }
         }
       },
