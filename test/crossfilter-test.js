@@ -269,6 +269,13 @@ suite.addBatch({
           } finally {
             data.total.filter(null);
           }
+        },
+        "union of filters operation returns the dimension": function(data) {
+          try {
+            assert.equal(data.total.filter(190, [0, 100], [200, 300]), data.total);
+          } finally {
+            data.total.filter(null);
+          }
         }
       },
 

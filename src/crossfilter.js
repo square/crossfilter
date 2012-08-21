@@ -206,7 +206,7 @@ function crossfilter() {
         }
         union = false;
         resetNeeded = true;
-        return arguments[n - 1];
+        return dimension;
       } else {
         return range == null
           ? filterAll() : Array.isArray(range)
