@@ -1,6 +1,6 @@
 {
   "name": "crossfilter",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Fast multidimensional filtering for coordinated views.",
   "keywords": [
     "square",
