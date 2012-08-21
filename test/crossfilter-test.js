@@ -276,6 +276,14 @@ suite.addBatch({
           } finally {
             data.total.filter(null);
           }
+        },
+        "union of filters supports overlapping ranges": function(data) {
+          try {
+            data.total.filter([0, 200], 190);
+            assert.equal(data.total.top(Infinity).length, 34);
+          } finally {
+            data.total.filter(null);
+          }
         }
       },
 
