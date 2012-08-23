@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/square/crossfilter.png)](http://travis-ci.org/square/crossfilter)
 # Crossfilter
 
 **Crossfilter** is a JavaScript library for exploring large multivariate datasets in the browser. Crossfilter supports extremely fast (<30ms) interaction with coordinated views, even with datasets containing a million or more records; we built it to power analytics for Square Register, allowing merchants to slice and dice their payment history fluidly.
