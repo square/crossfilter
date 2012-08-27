@@ -210,7 +210,8 @@ function crossfilter() {
       } else {
         return range == null
           ? filterAll() : Array.isArray(range)
-          ? filterRange(range)
+          ? filterRange(range) : typeof range === "function"
+          ? filterFunction(range)
           : filterExact(range);
       }
     }
@@ -218,6 +219,18 @@ function crossfilter() {
     // Filters this dimension to select the exact value.
     function filterExact(value) {
       return filterIndex((refilter = crossfilter_filterExact(bisect, value))(values));
+    }
+
+    // Custom filter function.
+    function filterFunction(f) {
+      resetNeeded = true;
+      for (var i = 0; i < n; ++i) {
+        if (f(values[i], i)) filters[index[i]] &= zero;
+        else filters[index[i]] |= one;
+      }
+      lo0 = 0;
+      lo1 = n;
+      return dimension;
     }
 
     // Filters this dimension to select the specified range [lo, hi].

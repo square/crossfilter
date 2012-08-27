@@ -284,6 +284,27 @@ suite.addBatch({
           } finally {
             data.total.filter(null);
           }
+        },
+        "supports custom filter function": function(data) {
+          try {
+            data.total.filter(function(d) { return d === 100; });
+            assert.isTrue(data.total.top(Infinity).every(function(d) {
+              return d.total === 100;
+            }));
+            assert.equal(data.total.top(Infinity).length, 4);
+          } finally {
+            data.total.filter(null);
+          }
+        },
+        "groupAll() works after custom filter function": function(data) {
+          try {
+            data.total.filter(function(d) { return d === 100; });
+            data.all.value();
+            data.total.filter([200, 300]);
+            assert.equal(data.all.value(), 8);
+          } finally {
+            data.total.filter(null);
+          }
         }
       },
 
