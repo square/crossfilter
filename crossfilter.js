@@ -1,5 +1,5 @@
 (function(exports){
-crossfilter.version = "1.0.3";
+crossfilter.version = "1.1.0";
 function crossfilter_identity(d) {
   return d;
 }
@@ -557,6 +557,7 @@ function crossfilter() {
       filterRange: filterRange,
       filterAll: filterAll,
       top: top,
+      bottom: bottom,
       group: group,
       groupAll: groupAll
     };
@@ -721,7 +722,7 @@ function crossfilter() {
       return filterIndex((refilter = crossfilter_filterAll)(values));
     }
 
-    // Returns the top K selected records, based on this dimension's order.
+    // Returns the top K selected records based on this dimension's order.
     // Note: observes this dimension's filter, unlike group and groupAll.
     function top(k) {
       var array = [],
@@ -733,6 +734,24 @@ function crossfilter() {
           array.push(data[j]);
           --k;
         }
+      }
+
+      return array;
+    }
+
+    // Returns the bottom K selected records based on this dimension's order.
+    // Note: observes this dimension's filter, unlike group and groupAll.
+    function bottom(k) {
+      var array = [],
+          i = lo0,
+          j;
+
+      while (i < hi0 && k > 0) {
+        if (!filters[j = index[i]]) {
+          array.push(data[j]);
+          --k;
+        }
+        i++;
       }
 
       return array;
