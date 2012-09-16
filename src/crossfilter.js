@@ -207,7 +207,7 @@ function crossfilter() {
       return filterIndex((refilter = crossfilter_filterAll)(values));
     }
 
-    // Returns the top K selected records, based on this dimension's order.
+    // Returns the top K selected records based on this dimension's order.
     // Note: observes this dimension's filter, unlike group and groupAll.
     function top(k) {
       var array = [],
@@ -223,8 +223,8 @@ function crossfilter() {
 
       return array;
     }
-    
-    // Basically same as top but on ascending order
+
+    // Returns the bottom K selected records based on this dimension's order.
     // Note: observes this dimension's filter, unlike group and groupAll.
     function bottom(k) {
       var array = [],
