@@ -19,7 +19,7 @@ crossfilter.js: \
 	src/null.js \
 	src/zero.js \
 	src/reduce.js \
-	src/crossfilter.js \
+	src/index.js \
 	Makefile
 
 %.min.js: %.js Makefile
