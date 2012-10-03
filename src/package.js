@@ -1,5 +1,5 @@
 var util = require("util"),
-    crossfilter = require("../crossfilter").crossfilter;
+    crossfilter = require("..");
 
 util.puts(JSON.stringify({
   "name": "crossfilter",
@@ -11,7 +11,7 @@ util.puts(JSON.stringify({
     "visualization"
   ],
   "homepage": "http://square.github.com/crossfilter/",
-  "main": "./index.js",
+  "main": "./src/index.js",
   "repository": {
     "type": "git",
     "url": "http://github.com/square/crossfilter.git"

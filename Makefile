@@ -31,7 +31,7 @@ crossfilter.js: \
 	./build $(filter %.js,$^) > $@
 	@chmod a-w $@
 
-package.json: crossfilter.js src/package.js
+package.json: src/version.js src/package.js
 	@rm -f $@
 	node src/package.js > $@
 	@chmod a-w $@
@@ -39,8 +39,8 @@ package.json: crossfilter.js src/package.js
 clean:
 	rm -f crossfilter.js crossfilter.min.js package.json
 
-test: all
+test:
 	@$(JS_TESTER)
 
-benchmark: all
+benchmark:
 	@node test/benchmark.js
