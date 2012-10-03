@@ -1,11 +1,23 @@
-var insertionsort_by = require("./insertionsort");
+exports.insertionsort = function(f) {
+
+  function insertionsort(a, lo, hi) {
+    for (var i = lo + 1; i < hi; ++i) {
+      for (var j = i, t = a[i], x = f(t); j > lo && f(a[j - 1]) > x; --j) {
+        a[j] = a[j - 1];
+      }
+      a[j] = t;
+    }
+    return a;
+  }
+
+  return insertionsort;
+};
+
 // Algorithm designed by Vladimir Yaroslavskiy.
 // Implementation based on the Dart project; see lib/dart/LICENSE for details.
 
-
-
-module.exports = function(f) {
-  var insertionsort = insertionsort_by(f);
+exports.quicksort = function(f) {
+  var insertionsort = exports.insertionsort(f);
 
   function sort(a, lo, hi) {
     return (hi - lo < quicksort_sizeThreshold

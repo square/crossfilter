@@ -7,18 +7,9 @@ all: crossfilter.min.js package.json
 
 crossfilter.js: \
 	src/version.js \
-	src/identity.js \
-	src/permute.js \
-	src/bisect.js \
-	src/heap.js \
-	src/heapselect.js \
-	src/insertionsort.js \
-	src/quicksort.js \
-	src/array.js \
-	src/filter.js \
-	src/null.js \
-	src/zero.js \
-	src/reduce.js \
+	src/func.js \
+	src/sort.js \
+	src/struct.js \
 	src/index.js \
 	Makefile
 

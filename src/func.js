@@ -1,4 +1,61 @@
-module.exports = function(f) {
+module.exports = exports = {
+  identity: function(d) {
+    return d;
+  },
+  zero: function() {
+    return 0;
+  },
+  nil: function() {
+    return null;
+  },
+  permute: function(array, index) {
+    for (var i = 0, n = index.length, copy = new Array(n); i < n; ++i) {
+      copy[i] = array[index[i]];
+    }
+    return copy;
+  },
+  reduce: {
+    increment: function(p) {
+      return p + 1;
+    },
+    decrement: function(p) {
+      return p - 1;
+    },
+    add: function(f) {
+      return function(p, v) {
+        return p + +f(v);
+      };
+    },
+    subtract: function(f) {
+      return function(p, v) {
+        return p - f(v);
+      };
+    },
+  },
+  filter: {
+    exact: function(bisect, value) {
+      return function(values) {
+        var n = values.length;
+        return [bisect.left(values, value, 0, n), bisect.right(values, value, 0, n)];
+      };
+    },
+
+    range: function(bisect, range) {
+      var min = range[0],
+          max = range[1];
+      return function(values) {
+        var n = values.length;
+        return [bisect.left(values, min, 0, n), bisect.left(values, max, 0, n)];
+      };
+    },
+
+    all: function(values) {
+      return [0, values.length];
+    },
+  },
+};
+
+exports.bisect = function(f) {
 
   // Locate the insertion point for x in a to maintain sorted order. The
   // arguments lo and hi may be used to specify a subset of the array which
