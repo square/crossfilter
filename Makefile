@@ -28,9 +28,7 @@ crossfilter.js: \
 
 %.js:
 	@rm -f $@
-	@echo '(function(exports){' > $@
-	cat $(filter %.js,$^) >> $@
-	@echo '})(this);' >> $@
+	./build $(filter %.js,$^) > $@
 	@chmod a-w $@
 
 package.json: crossfilter.js src/package.js

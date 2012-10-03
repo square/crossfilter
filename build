@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# vaccine.js must NOT be in the source list.
+source_dir='src'
+app_name='crossfilter'
+
+echo '(function() {'
+cat src/vaccine.js   # Output vaccine.js separately
+
+for file in "$@"
+do
+  name="$app_name/$(echo "$file" | sed -e "s#^$source_dir/##" -e 's/\.js//')"
+  echo "define('$name', function(require, exports, module) {"
+  cat $file
+  echo '});'
+done
+
+echo "define('$app_name', function(require, exports, module) {"
+echo "  module.exports = require('$app_name/index');"
+echo '});'
+
+echo '}());'
