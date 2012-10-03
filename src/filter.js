@@ -1,11 +1,11 @@
-function crossfilter_filterExact(bisect, value) {
+exports.crossfilter_filterExact = function(bisect, value) {
   return function(values) {
     var n = values.length;
     return [bisect.left(values, value, 0, n), bisect.right(values, value, 0, n)];
   };
 }
 
-function crossfilter_filterRange(bisect, range) {
+exports.crossfilter_filterRange = function(bisect, range) {
   var min = range[0],
       max = range[1];
   return function(values) {
@@ -14,6 +14,6 @@ function crossfilter_filterRange(bisect, range) {
   };
 }
 
-function crossfilter_filterAll(values) {
+exports.crossfilter_filterAll = function(values) {
   return [0, values.length];
 }

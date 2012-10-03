@@ -1,6 +1,31 @@
-exports.crossfilter = crossfilter;
+var version = require("./version"),
+    array = require("./array"),
+    crossfilter_identity = require("./identity"),
+    crossfilter_null = require("./null"),
+    crossfilter_zero = require("./zero"),
+    filter = require("./filter"),
+    reduce = require("./reduce"),
+    bisect_by = require("./bisect"),
+    heap_by = require("./heap"),
+    heapselect_by = require("./heapselect"),
+    permute = require("./permute"),
+    insertionsort_by = require("./insertionsort"),
+    quicksort_by = require("./quicksort"),
+    crossfilter_array16 = array.crossfilter_array16,
+    crossfilter_array32 = array.crossfilter_array32,
+    crossfilter_array8 = array.crossfilter_array8,
+    crossfilter_arrayLengthen = array.crossfilter_arrayLengthen,
+    crossfilter_arrayWiden = array.crossfilter_arrayWiden,
+    crossfilter_filterAll = filter.crossfilter_filterAll,
+    crossfilter_filterExact = filter.crossfilter_filterExact,
+    crossfilter_filterRange = filter.crossfilter_filterRange,
+    crossfilter_reduceAdd = reduce.crossfilter_reduceAdd,
+    crossfilter_reduceDecrement = reduce.crossfilter_reduceDecrement,
+    crossfilter_reduceIncrement = reduce.crossfilter_reduceIncrement,
+    crossfilter_reduceSubtract = reduce.crossfilter_reduceSubtract;
 
-function crossfilter() {
+module.exports = exports = function() {
+
   var crossfilter = {
     add: add,
     dimension: dimension,
@@ -193,13 +218,13 @@ function crossfilter() {
 
     // Filters this dimension to select the exact value.
     function filterExact(value) {
-      return filterIndex((refilter = crossfilter_filterExact(bisect, value))(values));
+      return filterIndex((refilter = crossfilter_filterExact(exports.bisect, value))(values));
     }
 
     // Filters this dimension to select the specified range [lo, hi].
     // The lower bound is inclusive, and the upper bound is exclusive.
     function filterRange(range) {
-      return filterIndex((refilter = crossfilter_filterRange(bisect, range))(values));
+      return filterIndex((refilter = crossfilter_filterRange(exports.bisect, range))(values));
     }
 
     // Clears any filters on this dimension.
@@ -659,6 +684,23 @@ function crossfilter() {
       ? add(arguments[0])
       : crossfilter;
 }
+
+
+exports.version = version;
+exports.permute = permute;
+exports.bisect = bisect_by(crossfilter_identity);
+exports.bisect.by = bisect_by;
+exports.heap = heap_by(crossfilter_identity);
+exports.heap.by = heap_by;
+exports.heapselect = heapselect_by(crossfilter_identity);
+exports.heapselect.by = heapselect_by;
+exports.insertionsort = insertionsort_by(crossfilter_identity);
+exports.insertionsort.by = insertionsort_by;
+exports.quicksort = quicksort_by(crossfilter_identity);
+exports.quicksort.by = quicksort_by;
+
+if (typeof window !== "undefined") window.crossfilter = exports;
+
 
 // Returns an array of size n, big enough to store ids up to m.
 function crossfilter_index(n, m) {

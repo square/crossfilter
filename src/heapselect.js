@@ -1,8 +1,6 @@
-var heapselect = crossfilter.heapselect = heapselect_by(crossfilter_identity);
+var heap_by = require("./heap");
 
-heapselect.by = heapselect_by;
-
-function heapselect_by(f) {
+module.exports = function(f) {
   var heap = heap_by(f);
 
   // Returns a new array containing the top k elements in the array a[lo:hi].
@@ -33,4 +31,4 @@ function heapselect_by(f) {
   }
 
   return heapselect;
-}
+};

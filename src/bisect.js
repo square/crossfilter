@@ -1,8 +1,4 @@
-var bisect = crossfilter.bisect = bisect_by(crossfilter_identity);
-
-bisect.by = bisect_by;
-
-function bisect_by(f) {
+module.exports = function(f) {
 
   // Locate the insertion point for x in a to maintain sorted order. The
   // arguments lo and hi may be used to specify a subset of the array which
@@ -41,4 +37,4 @@ function bisect_by(f) {
   bisectRight.right = bisectRight;
   bisectRight.left = bisectLeft;
   return bisectRight;
-}
+};

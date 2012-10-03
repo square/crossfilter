@@ -1,11 +1,10 @@
+var insertionsort_by = require("./insertionsort");
 // Algorithm designed by Vladimir Yaroslavskiy.
 // Implementation based on the Dart project; see lib/dart/LICENSE for details.
 
-var quicksort = crossfilter.quicksort = quicksort_by(crossfilter_identity);
 
-quicksort.by = quicksort_by;
 
-function quicksort_by(f) {
+module.exports = function(f) {
   var insertionsort = insertionsort_by(f);
 
   function sort(a, lo, hi) {

@@ -1,3 +1,3 @@
-function crossfilter_identity(d) {
+module.exports = function(d) {
   return d;
 }

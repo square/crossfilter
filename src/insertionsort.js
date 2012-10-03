@@ -1,8 +1,4 @@
-var insertionsort = crossfilter.insertionsort = insertionsort_by(crossfilter_identity);
-
-insertionsort.by = insertionsort_by;
-
-function insertionsort_by(f) {
+module.exports = function(f) {
 
   function insertionsort(a, lo, hi) {
     for (var i = lo + 1; i < hi; ++i) {
@@ -15,4 +11,4 @@ function insertionsort_by(f) {
   }
 
   return insertionsort;
-}
+};

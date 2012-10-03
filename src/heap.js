@@ -1,8 +1,4 @@
-var heap = crossfilter.heap = heap_by(crossfilter_identity);
-
-heap.by = heap_by;
-
-function heap_by(f) {
+module.exports = function(f) {
 
   // Builds a binary heap within the specified array a[lo:hi]. The heap has the
   // property such that the parent a[lo+i] is always less than or equal to its
@@ -41,4 +37,4 @@ function heap_by(f) {
 
   heap.sort = sort;
   return heap;
-}
+};

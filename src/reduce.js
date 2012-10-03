@@ -1,18 +1,18 @@
-function crossfilter_reduceIncrement(p) {
+exports.crossfilter_reduceIncrement = function(p) {
   return p + 1;
 }
 
-function crossfilter_reduceDecrement(p) {
+exports.crossfilter_reduceDecrement = function(p) {
   return p - 1;
 }
 
-function crossfilter_reduceAdd(f) {
+exports.crossfilter_reduceAdd = function(f) {
   return function(p, v) {
     return p + +f(v);
   };
 }
 
-function crossfilter_reduceSubtract(f) {
+exports.crossfilter_reduceSubtract = function(f) {
   return function(p, v) {
     return p - f(v);
   };

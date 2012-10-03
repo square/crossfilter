@@ -1,3 +1,3 @@
-function crossfilter_null() {
+module.exports = function() {
   return null;
 }
