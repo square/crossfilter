@@ -3,14 +3,14 @@ JS_COMPILER = ./node_modules/uglify-js/bin/uglifyjs
 
 .PHONY: test benchmark
 
-all: crossfilter.min.js package.json
+all: crossfilter.min.js
 
 crossfilter.js: \
-	src/version.js \
 	src/func.js \
 	src/sort.js \
 	src/struct.js \
 	src/index.js \
+	package.json \
 	build \
 	Makefile
 
@@ -23,13 +23,8 @@ crossfilter.js: \
 	./build $(filter %.js,$^) > $@
 	@chmod a-w $@
 
-package.json: src/version.js src/package.js
-	@rm -f $@
-	node src/package.js > $@
-	@chmod a-w $@
-
 clean:
-	rm -f crossfilter.js crossfilter.min.js package.json
+	rm -f crossfilter.js crossfilter.min.js
 
 test:
 	@$(JS_TESTER)

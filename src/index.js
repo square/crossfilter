@@ -1,5 +1,4 @@
-var version = require("./version"),
-    struct = require("./struct"),
+var struct = require("./struct"),
     sortModule = require("./sort"),
     func = require("./func"),
     identity = func.identity;
@@ -666,7 +665,6 @@ module.exports = exports = function() {
 }
 
 
-exports.version = version;
 exports.permute = func.permute;
 exports.bisect = func.bisect(identity);
 exports.bisect.by = func.bisect;

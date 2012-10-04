@@ -36,9 +36,6 @@ function define(id, defn) {
     defn(require, module.exports, module);
     globalVaccine.s(id, module.exports);
 }
-define('crossfilter/version', function(require, exports, module) {
-module.exports = "1.1.0";
-});
 define('crossfilter/func', function(require, exports, module) {
 module.exports = exports = {
   identity: function(d) {
@@ -548,8 +545,7 @@ function untypedArray(n) {
 }
 });
 define('crossfilter', function(require, exports, module) {
-var version = require("./version"),
-    struct = require("./struct"),
+var struct = require("./struct"),
     sortModule = require("./sort"),
     func = require("./func"),
     identity = func.identity;
@@ -1216,7 +1212,6 @@ module.exports = exports = function() {
 }
 
 
-exports.version = version;
 exports.permute = func.permute;
 exports.bisect = func.bisect(identity);
 exports.bisect.by = func.bisect;
@@ -1253,5 +1248,6 @@ function capacity(w) {
       ? 0x10000
       : 0x100000000;
 }
+exports.version = "1.1.0";
 });
 }());

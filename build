@@ -4,6 +4,9 @@
 source_dir='src'
 app_name='crossfilter'
 
+version=$(grep '"version"' package.json | cut -d '"' -f 4)
+
+
 echo '(function() {'
 cat src/vaccine.js   # Output vaccine.js separately
 
@@ -13,6 +16,7 @@ do
   test "X$name" = "X$app_name/index" && name=$app_name
   echo "define('$name', function(require, exports, module) {"
   cat $file
+  test "X$name" = "X$app_name" && echo "exports.version = \"$version\";"
   echo '});'
 done
 
