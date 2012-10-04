@@ -547,7 +547,7 @@ function untypedArray(n) {
   return new Array(n);
 }
 });
-define('crossfilter/index', function(require, exports, module) {
+define('crossfilter', function(require, exports, module) {
 var version = require("./version"),
     struct = require("./struct"),
     sortModule = require("./sort"),
@@ -1253,8 +1253,5 @@ function capacity(w) {
       ? 0x10000
       : 0x100000000;
 }
-});
-define('crossfilter', function(require, exports, module) {
-  module.exports = require('crossfilter/index');
 });
 }());

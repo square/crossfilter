@@ -11,6 +11,7 @@ crossfilter.js: \
 	src/sort.js \
 	src/struct.js \
 	src/index.js \
+	build \
 	Makefile
 
 %.min.js: %.js Makefile
