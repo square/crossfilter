@@ -12,6 +12,7 @@ crossfilter.js: \
 	src/index.js \
 	package.json \
 	build \
+	src/vaccine.js \
 	Makefile
 
 %.min.js: %.js Makefile
@@ -20,7 +21,7 @@ crossfilter.js: \
 
 %.js:
 	@rm -f $@
-	./build $(filter %.js,$^) > $@
+	./build $(filter-out src/vaccine.js, $(filter %.js,$^)) > $@
 	@chmod a-w $@
 
 clean:

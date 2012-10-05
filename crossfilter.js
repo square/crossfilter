@@ -26,15 +26,11 @@ function define(id, defn) {
   var module = {exports: {}};
 
   function require(reqId) {
-
-    reqId = reqId.replace(/\./, 'crossfilter');
-    var mod = globalVaccine.m[reqId];
-
-    return mod;
+    return globalVaccine.m[reqId.replace('.', 'crossfilter')];
   }
 
-    defn(require, module.exports, module);
-    globalVaccine.s(id, module.exports);
+  defn(require, module.exports, module);
+  globalVaccine.s(id, module.exports);
 }
 define('crossfilter/func', function(require, exports, module) {
 module.exports = exports = {
