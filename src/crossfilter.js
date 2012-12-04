@@ -4,6 +4,7 @@ function crossfilter() {
   var crossfilter = {
     add: add,
     dimension: dimension,
+    pivotGroup: pivotGroup,
     groupAll: groupAll,
     size: size
   };
@@ -245,6 +246,7 @@ function crossfilter() {
     // Adds a new group to this dimension, using the specified key function.
     function group(key) {
       var group = {
+        _groupIndex: _groupIndex,
         top: top,
         all: all,
         reduce: reduce,
@@ -484,6 +486,11 @@ function crossfilter() {
         return groups;
       }
 
+      function _groupIndex() {
+        if (resetNeeded) reset(), resetNeeded = false;
+        return groupIndex;
+      }
+
       // Returns a new array containing the top K group values, in reduce order.
       function top(k) {
         var top = select(all(), 0, groups.length, k);
@@ -653,6 +660,118 @@ function crossfilter() {
   // Returns the number of records in this crossfilter, irrespective of any filters.
   function size() {
     return n;
+  }
+
+  function pivotGroup(groups) {
+    var console = require('console')
+
+    var pivotGroup = {
+      all: all,
+      reduce: reduce,
+      reduceCount: reduceCount,
+      reduceSum: reduceSum
+    }
+
+    var pivotGroups, // array of {key, value}
+        pivotGroupIndex, // object id ↦ group id
+        k = 0, // cardinality
+        groupsLength = groups.length,
+        reduceAdd,
+        reduceRemove,
+        reduceInitial,
+        resetNeeded = true
+
+    function pivotKeyEqual(lhs, rhs) {
+      var i, rslt = true
+      for(i=0; rslt && i<groupsLength; i++)
+        rslt = lhs[i] == rhs[i] 
+      return rslt
+    }
+
+    function pivotKeySort(lhs, rhs) {
+      var i, rslt = 0
+      for(i=0; !rslt && i<groupsLength; i++)
+        rslt = lhs[i] < rhs[i] ? -1 : lhs[i] > rhs[i] ? 1 : 0
+      return rslt
+    }
+
+    function reset() {
+      var i, j, g, key, pivotGroupIndex = [], pivotGroupIndexRemap = [], groupIndexes = [], groupKeys = []
+
+      pivotGroups = []
+
+      for(i=0; i<groupsLength; i++) {
+        groupIndexes.push(groups[i]._groupIndex())
+        groupKeys.push(groups[i].all())
+      }
+
+      for(i=0; i<n; i++) {
+        key = []
+        for(j=0; j<groupsLength; j++) key.push(groupIndexes[j][i])
+        for(j=0; j<pivotGroups.length && key; j++) {
+          if (pivotKeyEqual(pivotGroups[j], key)) {
+            pivotGroupIndex.push(j)
+            key = null
+          }
+        }
+        if (key) {
+          pivotGroupIndex.push(pivotGroups.length)
+          key.push(pivotGroups.length)
+          pivotGroups.push(key)
+        }
+      }
+
+      k = pivotGroups.length
+
+      pivotGroups.sort(pivotKeySort)
+      for(i=0; i<k; i++) pivotGroupIndexRemap[pivotGroups[i][groupsLength]] = i
+      for(i=0; i<n; i++) pivotGroupIndex[i] = pivotGroupIndexRemap[pivotGroupIndex[i]]
+
+      for(i=0; i<k; i++) {
+        key = []
+        for(j=0; j<groupsLength; j++) key.push(groupKeys[j][pivotGroups[i][j]].key)
+        pivotGroups[i] = {key:key}
+      }
+
+      for (i = 0; i < k; ++i) {
+        pivotGroups[i].value = reduceInitial()
+      }
+
+      // Add any selected records.
+      for (i = 0; i < n; ++i) {
+        if (!filters[i]) {
+          g = pivotGroups[pivotGroupIndex[i]]
+          g.value = reduceAdd(g.value, data[i]);
+        }
+      }
+    }
+
+    function all() {
+      if (resetNeeded) reset(), resetNeeded = false;
+      return pivotGroups
+    }
+
+    // Sets the reduce behavior for this group to use the specified functions.
+    // This method lazily recomputes the reduce values, waiting until needed.
+    function reduce(add, remove, initial) {
+      reduceAdd = add
+      reduceRemove = remove
+      reduceInitial = initial
+      resetNeeded = true
+      return pivotGroup
+    }
+
+    // A convenience method for reducing by count.
+    function reduceCount() {
+      return reduce(crossfilter_reduceIncrement, crossfilter_reduceDecrement, crossfilter_zero)
+    }
+
+    // A convenience method for reducing by sum(value).
+    function reduceSum(value) {
+      return reduce(crossfilter_reduceAdd(value), crossfilter_reduceSubtract(value), crossfilter_zero)
+    }
+
+    return reduceCount()
   }
 
   return arguments.length
