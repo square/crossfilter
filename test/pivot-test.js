@@ -49,6 +49,30 @@ suite.addBatch({
                                  {key:['Male', 'Left-handed'], value:0}, 
                                  {key:['Male', 'Right-handed'], value:0}])
     },
+    "updates when filters change": function(fixture) {
+      var p
+
+      fixture = fixture()
+      p = fixture.c.pivotGroup([fixture.group.gender, fixture.group.handed])
+      fixture.dim.gender.filter('Female')
+      
+      assert.deepEqual(p.all(), [{key:['Female', 'Left-handed'], value:1}, 
+                                 {key:['Female', 'Right-handed'], value:4}, 
+                                 {key:['Male', 'Left-handed'], value:0}, 
+                                 {key:['Male', 'Right-handed'], value:0}])
+
+      fixture.dim.gender.filter('Male')
+      assert.deepEqual(p.all(), [{key:['Female', 'Left-handed'], value:0}, 
+                                 {key:['Female', 'Right-handed'], value:0}, 
+                                 {key:['Male', 'Left-handed'], value:2}, 
+                                 {key:['Male', 'Right-handed'], value:3}])
+
+      fixture.dim.gender.filter(null)
+      assert.deepEqual(p.all(), [{key:['Female', 'Left-handed'], value:1}, 
+                                 {key:['Female', 'Right-handed'], value:4}, 
+                                 {key:['Male', 'Left-handed'], value:2}, 
+                                 {key:['Male', 'Right-handed'], value:3}])
+    },
     "custom reduce function": function(fixture) {
       var p 
       

@@ -1178,8 +1178,6 @@ function crossfilter() {
   }
 
   function pivotGroup(groups) {
-    var console = require('console')
-
     var pivotGroup = {
       all: all,
       reduce: reduce,
@@ -1196,6 +1194,8 @@ function crossfilter() {
         reduceInitial,
         resetNeeded = true
 
+    filterListeners.push(update);
+
     function pivotKeyEqual(lhs, rhs) {
       var i, rslt = true
       for(i=0; rslt && i<groupsLength; i++)
@@ -1211,9 +1211,10 @@ function crossfilter() {
     }
 
     function reset() {
-      var i, j, g, key, pivotGroupIndex = [], pivotGroupIndexRemap = [], groupIndexes = [], groupKeys = []
+      var i, j, g, key, pivotGroupIndexRemap = [], groupIndexes = [], groupKeys = []
 
       pivotGroups = []
+      pivotGroupIndex = []
 
       for(i=0; i<groupsLength; i++) {
         groupIndexes.push(groups[i]._groupIndex())
@@ -1257,6 +1258,28 @@ function crossfilter() {
         if (!filters[i]) {
           g = pivotGroups[pivotGroupIndex[i]]
           g.value = reduceAdd(g.value, data[i]);
+        }
+      }
+    }
+
+    function update(ignored, added, removed) {
+      if (resetNeeded) return
+
+      var i, k, n, g 
+
+      // Add the added values.
+      for (i = 0, n = added.length; i < n; ++i) {
+        if (!filters[k = added[i]]) {
+          g = pivotGroups[pivotGroupIndex[k]];
+          g.value = reduceAdd(g.value, data[k]);
+        }
+      }
+
+      // Remove the removed values.
+      for (i = 0, n = removed.length; i < n; ++i) {
+        if (filters[k = removed[i]]) {
+          g = pivotGroups[pivotGroupIndex[k]];
+          g.value = reduceRemove(g.value, data[k]);
         }
       }
     }
