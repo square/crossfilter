@@ -26,6 +26,13 @@ suite.addBatch({
       rslt.group = { gender: rslt.dim.gender.group(), handed: rslt.dim.handed.group() }
       return rslt
     }},
+    "size": function(fixture) {
+      var p 
+
+      fixture = fixture()
+      p = fixture.c.pivotGroup([fixture.group.gender, fixture.group.handed])
+      assert.strictEqual(p.size(), 4)
+    },
     "counts records by default": function(fixture) {
       var p 
 

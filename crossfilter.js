@@ -515,6 +515,53 @@ function crossfilter_reduceSubtract(f) {
 }
 exports.crossfilter = crossfilter;
 
+
+// Fowler/Noll/Vo hashing.  From https://github.com/jasondavies/bloomfilter.js, modified for arrays of integers
+function fnv_1a(v) {
+  var n = v.length,
+      a = 2166136261,
+      c,
+      d,
+      i = -1;
+  while (++i < n) {
+    c = v[i];
+    if (d = c & 0xff000000) {
+      a ^= d >> 24;
+      a += (a << 1) + (a << 4) + (a << 7) + (a << 8) + (a << 24);
+    }
+    if (d = c & 0xff0000) {
+      a ^= d >> 16;
+      a += (a << 1) + (a << 4) + (a << 7) + (a << 8) + (a << 24);
+    }
+    if (d = c & 0xff00) {
+      a ^= d >> 8;
+      a += (a << 1) + (a << 4) + (a << 7) + (a << 8) + (a << 24);
+    }
+    a ^= c & 0xff;
+    a += (a << 1) + (a << 4) + (a << 7) + (a << 8) + (a << 24);
+  }
+  // From http://home.comcast.net/~bretm/hash/6.html
+  a += a << 13;
+  a ^= a >> 7;
+  a += a << 3;
+  a ^= a >> 17;
+  a += a << 5;
+  return a & 0xffffffff;
+}
+
+// One additional iteration of FNV, given a hash.
+function fnv_1a_b(a) {
+  a += (a << 1) + (a << 4) + (a << 7) + (a << 8) + (a << 24);
+  a += a << 13;
+  a ^= a >> 7;
+  a += a << 3;
+  a ^= a >> 17;
+  a += a << 5;
+  return a & 0xffffffff;
+}
+
+
+
 function crossfilter() {
   var crossfilter = {
     add: add,
@@ -1180,6 +1227,7 @@ function crossfilter() {
   function pivotGroup(groups) {
     var pivotGroup = {
       all: all,
+      size: size,
       reduce: reduce,
       reduceCount: reduceCount,
       reduceSum: reduceSum
@@ -1215,21 +1263,30 @@ function crossfilter() {
       pivotGroupIndex = []
 
       function collectPivotGroupsAndIndexes() {
-        var i, j, key, groupIndexes = []
+        var i, j, hashProbe, hashStep, key, 
+            groupIndexes = [],
+            bucketsLength = Math.pow(2, Math.ceil(Math.log(n*1.25)/Math.log(2))), // worst case if every record is in a different bucket, but usually fill will be much lower
+            bucketsMask = bucketsLength-1,
+            buckets = new Array(bucketsLength)
+
         for(i=0; i<groupsLength; i++) groupIndexes.push(groups[i]._groupIndex())
 
         for(i=0; i<n; i++) {
           key = []
           for(j=0; j<groupsLength; j++) key.push(groupIndexes[j][i])
-          for(j=0; j<pivotGroups.length && key; j++) {
-            if (pivotKeyEqual(pivotGroups[j], key)) {
-              pivotGroupIndex.push(j)
+          hashProbe = fnv_1a(key) & bucketsMask
+          hashStep = fnv_1a_b(hashProbe)
+          while(key && buckets[hashProbe]) {
+            if (pivotKeyEqual(pivotGroups[buckets[hashProbe]-1], key)) {
+              pivotGroupIndex.push(buckets[hashProbe]-1)
               key = null
+            } else {
+              hashProbe = (hashProbe + hashStep) & bucketsMask
             }
           }
           if (key) {
+            buckets[hashProbe] = pivotGroups.length+1
             pivotGroupIndex.push(pivotGroups.length)
-            key.push(pivotGroups.length)
             pivotGroups.push(key)
           }
         }
@@ -1238,6 +1295,7 @@ function crossfilter() {
 
       function sortPivotGroupsAndRemapIndexes() {
         var i, pivotGroupIndexRemap = []
+        for(i=0; i<k; i++) pivotGroups[i].push(i)
         pivotGroups.sort(pivotKeySort)
         for(i=0; i<k; i++) pivotGroupIndexRemap[pivotGroups[i][groupsLength]] = i
         for(i=0; i<n; i++) pivotGroupIndex[i] = pivotGroupIndexRemap[pivotGroupIndex[i]]
@@ -1299,6 +1357,11 @@ function crossfilter() {
     function all() {
       if (resetNeeded) reset(), resetNeeded = false;
       return pivotGroups
+    }
+
+    function size() {
+      if (resetNeeded) reset(), resetNeeded = false;
+      return k
     }
 
     // Sets the reduce behavior for this group to use the specified functions.
