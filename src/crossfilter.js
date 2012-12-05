@@ -748,9 +748,9 @@ function crossfilter() {
       pivotGroupIndex = []
 
       function collectPivotGroupsAndIndexes() {
-        var i, j, hashProbe, hashStep, key, 
+        var i, j, hashProbe0, hashProbe, hashStep, key, 
             groupIndexes = [],
-            bucketsLength = Math.pow(2, Math.ceil(Math.log(n*1.25)/Math.log(2))), // worst case if every record is in a different bucket, but usually fill will be much lower
+            bucketsLength = Math.max(Math.pow(2, Math.ceil(Math.log(n*1.5)/Math.log(2))), 256), // worst case 66% fill if every record is in a different bucket, but usually fill will be much lower
             bucketsMask = bucketsLength-1,
             buckets = new Array(bucketsLength)
 
@@ -758,14 +758,18 @@ function crossfilter() {
 
         for(i=0; i<n; i++) {
           key = []
-          for(j=0; j<groupsLength; j++) key.push(groupIndexes[j][i])
+          for(j=0; j<groupsLength; j++) key.push(groupIndexes[j] ? groupIndexes[j][i] : 0)
+          hashProbe0 = -1
           hashProbe = fnv_1a(key) & bucketsMask
-          hashStep = fnv_1a_b(hashProbe)
+          hashStep = fnv_1a_b(hashProbe) 
+          hashProbe = hashProbe & bucketsMask
           while(key && buckets[hashProbe]) {
             if (pivotKeyEqual(pivotGroups[buckets[hashProbe]-1], key)) {
               pivotGroupIndex.push(buckets[hashProbe]-1)
               key = null
             } else {
+              if (hashProbe0 == hashProbe) hashStep = 1 // prevent any chance of infinite loop due to hashStep not being relatively prime to bucketsLength
+              if (hashProbe0 == -1) hashProbe0 = hashProbe
               hashProbe = (hashProbe + hashStep) & bucketsMask
             }
           }

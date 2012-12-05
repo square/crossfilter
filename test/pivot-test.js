@@ -93,6 +93,61 @@ suite.addBatch({
                                  {key:['Male', 'Right-handed'], value:0}])
     }
   },
+  "pivot misc": {
+    "example": function() {
+      var data = [ { gender:'Female', handed:'Right-handed', score: 9},
+                   { gender:'Male', handed:'Left-handed', score: 2},
+                   { gender:'Female', handed:'Right-handed', score: 32},
+                   { gender:'Male', handed:'Right-handed', score: 22},
+                   { gender:'Male', handed:'Left-handed', score: 3},
+                   { gender:'Male', handed:'Right-handed', score: 21},
+                   { gender:'Female', handed:'Right-handed', score: 99},
+                   { gender:'Female', handed:'Left-handed', score: 12},
+                   { gender:'Male', handed:'Right-handed', score: 0},
+                   { gender:'Female', handed:'Right-handed', score: 1},
+                 ],
+          c = crossfilter(data),
+          dim = { gender: c.dimension(function(v) { return v.gender }), 
+                  handed: c.dimension(function(v) { return v.handed }) }
+          group = { gender: dim.gender.group(), 
+                    handed: dim.handed.group() },
+          pivotGroup = c.pivotGroup([group.gender, group.handed])
+
+
+      assert.deepEqual(pivotGroup.all(), [{key:['Female', 'Left-handed'], value:1}, 
+                                          {key:['Female', 'Right-handed'], value:4}, 
+                                          {key:['Male', 'Left-handed'], value:2}, 
+                                          {key:['Male', 'Right-handed'], value:3}])
+      
+      dim.gender.filter('Female')
+      assert.deepEqual(pivotGroup.all(), [{key:['Female', 'Left-handed'], value:1}, 
+                                          {key:['Female', 'Right-handed'], value:4}, 
+                                          {key:['Male', 'Left-handed'], value:0}, 
+                                          {key:['Male', 'Right-handed'], value:0}])
+    },
+    "cardinality one dimension": function() {
+      var data = [ { gender:'Female', handed:'Right-handed', score: 9},
+                   { gender:'Female', handed:'Right-handed', score: 32},
+                   { gender:'Male', handed:'Right-handed', score: 22},
+                   { gender:'Male', handed:'Right-handed', score: 21},
+                   { gender:'Female', handed:'Right-handed', score: 99},
+                   { gender:'Male', handed:'Right-handed', score: 0},
+                   { gender:'Female', handed:'Right-handed', score: 1},
+                 ],
+          c = crossfilter(data),
+          dim = { gender: c.dimension(function(v) { return v.gender }), 
+                  handed: c.dimension(function(v) { return v.handed }) }
+          group = { gender: dim.gender.group(), 
+                    handed: dim.handed.group() },
+          pivotGroup = c.pivotGroup([group.gender, group.handed])
+    
+    
+      assert.deepEqual(pivotGroup.all(), [{key:['Female', 'Right-handed'], value:4}, {key:['Male', 'Right-handed'], value:3}])
+      
+      dim.gender.filter('Female')
+      assert.deepEqual(pivotGroup.all(), [{key:['Female', 'Right-handed'], value:4}, {key:['Male', 'Right-handed'], value:0}])
+    },
+  },
   "pivot large data set": {
     topic: function() { return function() {
       var rslt = {}
