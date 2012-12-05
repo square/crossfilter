@@ -1211,55 +1211,67 @@ function crossfilter() {
     }
 
     function reset() {
-      var i, j, g, key, pivotGroupIndexRemap = [], groupIndexes = [], groupKeys = []
-
       pivotGroups = []
       pivotGroupIndex = []
 
-      for(i=0; i<groupsLength; i++) {
-        groupIndexes.push(groups[i]._groupIndex())
-        groupKeys.push(groups[i].all())
-      }
+      function collectPivotGroupsAndIndexes() {
+        var i, j, key, groupIndexes = []
+        for(i=0; i<groupsLength; i++) groupIndexes.push(groups[i]._groupIndex())
 
-      for(i=0; i<n; i++) {
-        key = []
-        for(j=0; j<groupsLength; j++) key.push(groupIndexes[j][i])
-        for(j=0; j<pivotGroups.length && key; j++) {
-          if (pivotKeyEqual(pivotGroups[j], key)) {
-            pivotGroupIndex.push(j)
-            key = null
+        for(i=0; i<n; i++) {
+          key = []
+          for(j=0; j<groupsLength; j++) key.push(groupIndexes[j][i])
+          for(j=0; j<pivotGroups.length && key; j++) {
+            if (pivotKeyEqual(pivotGroups[j], key)) {
+              pivotGroupIndex.push(j)
+              key = null
+            }
+          }
+          if (key) {
+            pivotGroupIndex.push(pivotGroups.length)
+            key.push(pivotGroups.length)
+            pivotGroups.push(key)
           }
         }
-        if (key) {
-          pivotGroupIndex.push(pivotGroups.length)
-          key.push(pivotGroups.length)
-          pivotGroups.push(key)
+        k = pivotGroups.length
+      }
+
+      function sortPivotGroupsAndRemapIndexes() {
+        var i, pivotGroupIndexRemap = []
+        pivotGroups.sort(pivotKeySort)
+        for(i=0; i<k; i++) pivotGroupIndexRemap[pivotGroups[i][groupsLength]] = i
+        for(i=0; i<n; i++) pivotGroupIndex[i] = pivotGroupIndexRemap[pivotGroupIndex[i]]
+      }
+
+      function constructPivotGroupObjects() {
+        var i, g, key, groupKeys = []
+        for(i=0; i<groupsLength; i++) groupKeys.push(groups[i].all())
+        for(i=0; i<k; i++) {
+          key = []
+          for(j=0; j<groupsLength; j++) key.push(groupKeys[j][pivotGroups[i][j]].key)
+          pivotGroups[i] = {key:key}
         }
       }
 
-      k = pivotGroups.length
-
-      pivotGroups.sort(pivotKeySort)
-      for(i=0; i<k; i++) pivotGroupIndexRemap[pivotGroups[i][groupsLength]] = i
-      for(i=0; i<n; i++) pivotGroupIndex[i] = pivotGroupIndexRemap[pivotGroupIndex[i]]
-
-      for(i=0; i<k; i++) {
-        key = []
-        for(j=0; j<groupsLength; j++) key.push(groupKeys[j][pivotGroups[i][j]].key)
-        pivotGroups[i] = {key:key}
-      }
-
-      for (i = 0; i < k; ++i) {
-        pivotGroups[i].value = reduceInitial()
-      }
-
-      // Add any selected records.
-      for (i = 0; i < n; ++i) {
-        if (!filters[i]) {
-          g = pivotGroups[pivotGroupIndex[i]]
-          g.value = reduceAdd(g.value, data[i]);
+      function resetPivotGroups() {
+        var i, g
+        for (i = 0; i < k; ++i) {
+          pivotGroups[i].value = reduceInitial()
+        }
+  
+        // Add any selected records.
+        for (i = 0; i < n; ++i) {
+          if (!filters[i]) {
+            g = pivotGroups[pivotGroupIndex[i]]
+            g.value = reduceAdd(g.value, data[i]);
+          }
         }
       }
+
+      collectPivotGroupsAndIndexes()
+      sortPivotGroupsAndRemapIndexes()
+      constructPivotGroupObjects()
+      resetPivotGroups()
     }
 
     function update(ignored, added, removed) {

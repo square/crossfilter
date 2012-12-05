@@ -157,8 +157,6 @@ suite.addBatch({
       { key: [ 'visa', 100, 17 ], value: 575 }, {   key: [ 'visa', 100, 18 ], value: 326 }, {   key: [ 'visa', 100, 21 ], value: 396 }, {   key: [ 'visa', 100, 23 ], value: 473 },
       { key: [ 'visa', 200, 16 ], value: 314
       }])
-
-
     }
   }
 })
