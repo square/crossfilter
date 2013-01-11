@@ -1,13 +1,13 @@
 var vows = require("vows"),
     assert = require("assert"),
-    tesseract = require("../");
+    crossfilter = require("../");
 
 var suite = vows.describe("bisect");
 
 suite.addBatch({
   "bisect": {
     topic: function() {
-      return tesseract.bisect;
+      return crossfilter.bisect;
     },
     "is the same as bisect.right": function(bisect) {
       assert.strictEqual(bisect, bisect.right);
@@ -18,7 +18,7 @@ suite.addBatch({
 suite.addBatch({
   "bisect.left": {
     topic: function() {
-      return tesseract.bisect.left;
+      return crossfilter.bisect.left;
     },
     "finds the index of an exact match": function(bisect) {
       var array = [1, 2, 3];
@@ -65,7 +65,7 @@ suite.addBatch({
 suite.addBatch({
   "bisect.by(value).left": {
     topic: function() {
-      return tesseract.bisect.by(function(d) { return d.value; }).left;
+      return crossfilter.bisect.by(function(d) { return d.value; }).left;
     },
     "finds the index of an exact match": function(bisect) {
       var array = [{value: 1}, {value: 2}, {value: 3}];
@@ -112,7 +112,7 @@ suite.addBatch({
 suite.addBatch({
   "bisect.right": {
     topic: function() {
-      return tesseract.bisect.right;
+      return crossfilter.bisect.right;
     },
     "finds the index after an exact match": function(bisect) {
       var array = [1, 2, 3];
@@ -159,7 +159,7 @@ suite.addBatch({
 suite.addBatch({
   "bisect.by(value).right": {
     topic: function() {
-      return tesseract.bisect.by(function(d) { return d.value; }).right;
+      return crossfilter.bisect.by(function(d) { return d.value; }).right;
     },
     "finds the index after an exact match": function(bisect) {
       var array = [{value: 1}, {value: 2}, {value: 3}];

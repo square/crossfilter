@@ -1,13 +1,13 @@
 var vows = require("vows"),
     assert = require("assert"),
-    tesseract = require("../");
+    crossfilter = require("../");
 
 var suite = vows.describe("permute");
 
 suite.addBatch({
   "permute": {
     topic: function() {
-      return tesseract.permute;
+      return crossfilter.permute;
     },
     "permutes according to the specified index": function(permute) {
       assert.deepEqual(permute([3, 4, 5], [2, 1, 0]), [5, 4, 3]);

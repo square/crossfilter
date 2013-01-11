@@ -1,11 +1,11 @@
-function tesseract_filterExact(bisect, value) {
+function crossfilter_filterExact(bisect, value) {
   return function(values) {
     var n = values.length;
     return [bisect.left(values, value, 0, n), bisect.right(values, value, 0, n)];
   };
 }
 
-function tesseract_filterRange(bisect, range) {
+function crossfilter_filterRange(bisect, range) {
   var min = range[0],
       max = range[1];
   return function(values) {
@@ -14,6 +14,6 @@ function tesseract_filterRange(bisect, range) {
   };
 }
 
-function tesseract_filterAll(values) {
+function crossfilter_filterAll(values) {
   return [0, values.length];
 }

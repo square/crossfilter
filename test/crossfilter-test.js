@@ -1,14 +1,14 @@
 var vows = require("vows"),
     assert = require("assert"),
     d3 = require("d3"),
-    tesseract = require("../");
+    crossfilter = require("../");
 
-var suite = vows.describe("tesseract");
+var suite = vows.describe("crossfilter");
 
 suite.addBatch({
-  "tesseract": {
+  "crossfilter": {
     topic: function() {
-      var data = tesseract([
+      var data = crossfilter([
         {date: "2011-11-14T16:17:54Z", quantity: 2, total: 190, tip: 100, type: "tab"},
         {date: "2011-11-14T16:20:19Z", quantity: 2, total: 190, tip: 100, type: "tab"},
         {date: "2011-11-14T16:28:54Z", quantity: 1, total: 300, tip: 200, type: "visa"},
@@ -41,9 +41,9 @@ suite.addBatch({
         {date: "2011-11-14T21:26:30Z", quantity: 2, total: 190, tip: 100, type: "tab"},
         {date: "2011-11-14T21:30:55Z", quantity: 2, total: 190, tip: 100, type: "tab"},
         {date: "2011-11-14T21:31:05Z", quantity: 2, total: 90, tip: 0, type: "tab"},
-        {date: "2011-11-14T22:30:22Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+        {date: "2011-11-14T22:30:22Z", quantity: 2, total: 89, tip: 0, type: "tab"},
         {date: "2011-11-14T22:34:28Z", quantity: 2, total: 190, tip: 100, type: "tab"},
-        {date: "2011-11-14T22:48:05Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+        {date: "2011-11-14T22:48:05Z", quantity: 2, total: 91, tip: 0, type: "tab"},
         {date: "2011-11-14T22:51:40Z", quantity: 2, total: 190, tip: 100, type: "tab"},
         {date: "2011-11-14T22:58:54Z", quantity: 2, total: 100, tip: 0, type: "visa"},
         {date: "2011-11-14T23:06:25Z", quantity: 2, total: 190, tip: 100, type: "tab"},
@@ -69,7 +69,7 @@ suite.addBatch({
     },
 
     "up to 32 dimensions supported": function() {
-      var data = tesseract([]);
+      var data = crossfilter([]);
       for (var i = 0; i < 32; i++) data.dimension(function() { return 0; });
       assert.throws(function() { data.dimension(function() { return 0; }); }, Error);
     },
@@ -165,6 +165,95 @@ suite.addBatch({
         }
       },
 
+      "bottom": {
+        "returns the bottom k records by value, in descending order": function(data) {
+          assert.deepEqual(data.total.bottom(3), [
+            {date: "2011-11-14T22:30:22Z", quantity: 2, total: 89, tip: 0, type: "tab"},
+            {date: "2011-11-14T16:30:43Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+            {date: "2011-11-14T16:48:46Z", quantity: 2, total: 90, tip: 0, type: "tab"}
+          ]);
+          assert.deepEqual(data.date.bottom(3), [
+            {date: "2011-11-14T16:17:54Z", quantity: 2, total: 190, tip: 100, type: "tab"},
+            {date: "2011-11-14T16:20:19Z", quantity: 2, total: 190, tip: 100, type: "tab"},
+            {date: "2011-11-14T16:28:54Z", quantity: 1, total: 300, tip: 200, type: "visa"}
+         ]);
+        },
+        "observes the associated dimension's filters": function(data) {
+          try {
+            data.quantity.filterExact(4);
+            assert.deepEqual(data.total.bottom(3), [
+              {date: "2011-11-14T21:18:48Z", quantity: 4, total: 270, tip: 0, type: "tab"}
+            ]);
+          } finally {
+            data.quantity.filterAll();
+          }
+          try {
+            data.date.filterRange([new Date(Date.UTC(2011, 10, 14, 19)), new Date(Date.UTC(2011, 10, 14, 20))]);
+            assert.deepEqual(data.date.bottom(10), [
+              {date: "2011-11-14T19:00:31Z", quantity: 2, total: 190, tip: 100, type: "tab"},
+              {date: "2011-11-14T19:04:22Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+              {date: "2011-11-14T19:30:44Z", quantity: 2, total: 90, tip: 0, type: "tab"}
+            ]);
+            data.date.filterRange([Date.UTC(2011, 10, 14, 19), Date.UTC(2011, 10, 14, 20)]); // also comparable
+            assert.deepEqual(data.date.bottom(10), [
+              {date: "2011-11-14T19:00:31Z", quantity: 2, total: 190, type: "tab", tip: 100},
+              {date: "2011-11-14T19:04:22Z", quantity: 2, total: 90, type: "tab", tip: 0},
+              {date: "2011-11-14T19:30:44Z", quantity: 2, total: 90, type: "tab", tip: 0}
+            ]);
+          } finally {
+            data.date.filterAll();
+          }
+        },
+        "observes other dimensions' filters": function(data) {
+          try {
+            data.type.filterExact("tab");
+            assert.deepEqual(data.total.bottom(2), [
+              {date: "2011-11-14T22:30:22Z", quantity: 2, total: 89, tip: 0, type: "tab"},
+              {date: "2011-11-14T16:30:43Z", quantity: 2, total: 90, tip: 0, type: "tab"}
+            ]);
+            data.type.filterExact("visa");
+            assert.deepEqual(data.total.bottom(1), [
+              {date: "2011-11-14T22:58:54Z", quantity: 2, total: 100, tip: 0, type: "visa"}
+            ]);
+            data.quantity.filterExact(2);
+            assert.deepEqual(data.tip.bottom(1), [
+              {date: "2011-11-14T22:58:54Z", quantity: 2, total: 100, tip: 0, type: "visa"}
+            ]);
+          } finally {
+            data.type.filterAll();
+            data.quantity.filterAll();
+          }
+          try {
+            data.type.filterExact("tab");
+            assert.deepEqual(data.date.bottom(2), [
+              {date: "2011-11-14T16:17:54Z", quantity: 2, total: 190, tip: 100, type: "tab"},
+              {date: "2011-11-14T16:20:19Z", quantity: 2, total: 190, tip: 100, type: "tab"}
+            ]);
+            data.type.filterExact("visa");
+            assert.deepEqual(data.date.bottom(1), [
+              {date: "2011-11-14T16:28:54Z", quantity: 1, total: 300, tip: 200, type: "visa"}
+            ]);
+            data.quantity.filterExact(2);
+            assert.deepEqual(data.date.bottom(1), [
+              {date: "2011-11-14T17:38:40Z", quantity: 2, total: 200, tip: 100, type: "visa"}
+            ]);
+          } finally {
+            data.type.filterAll();
+            data.quantity.filterAll();
+          }
+        },
+        "negative or zero k returns an empty array": function(data) {
+          assert.deepEqual(data.quantity.bottom(0), []);
+          assert.deepEqual(data.quantity.bottom(-1), []);
+          assert.deepEqual(data.quantity.bottom(NaN), []);
+          assert.deepEqual(data.quantity.bottom(-Infinity), []);
+          assert.deepEqual(data.date.bottom(0), []);
+          assert.deepEqual(data.date.bottom(-1), []);
+          assert.deepEqual(data.date.bottom(NaN), []);
+          assert.deepEqual(data.date.bottom(-Infinity), []);
+        }
+      },
+
       "filterExact": {
         "selects records that match the specified value exactly": function(data) {
           try {
@@ -182,7 +271,7 @@ suite.addBatch({
             data.tip.filterExact(null); // equivalent to 0 by natural ordering
             assert.deepEqual(data.date.top(2), [
               {date: "2011-11-14T22:58:54Z", quantity: 2, total: 100, tip: 0, type: "visa"},
-              {date: "2011-11-14T22:48:05Z", quantity: 2, total: 90, tip: 0, type: "tab"}
+              {date: "2011-11-14T22:48:05Z", quantity: 2, total: 91, tip: 0, type: "tab"}
             ]);
           } finally {
             data.tip.filterAll();
@@ -391,7 +480,7 @@ suite.addBatch({
         },
 
         "cardinality may be greater than 256": function() {
-          var data = tesseract(d3.range(256).concat(256, 256)),
+          var data = crossfilter(d3.range(256).concat(256, 256)),
               index = data.dimension(function(d) { return d; }),
               indexes = index.group();
           assert.deepEqual(index.top(2), [256, 256]);
@@ -400,7 +489,7 @@ suite.addBatch({
         },
 
         "cardinality may be greater than 65536": function() {
-          var data = tesseract(d3.range(65536).concat(65536, 65536)),
+          var data = crossfilter(d3.range(65536).concat(65536, 65536)),
               index = data.dimension(function(d) { return d; }),
               indexes = index.group();
           assert.deepEqual(index.top(2), [65536, 65536]);
@@ -547,8 +636,8 @@ suite.addBatch({
     },
 
     "add": {
-      "increases the size of the tesseract": function() {
-        var data = tesseract([]);
+      "increases the size of the crossfilter": function() {
+        var data = crossfilter([]);
         assert.equal(data.size(), 0);
         data.add([0, 1, 2, 3, 4, 5, 6, 6, 6, 7]);
         assert.equal(data.size(), 10);
@@ -556,7 +645,7 @@ suite.addBatch({
         assert.equal(data.size(), 10);
       },
       "existing filters are consistent with new records": function(data) {
-        var data = tesseract([]),
+        var data = crossfilter([]),
             foo = data.dimension(function(d) { return +d; }),
             bar = data.dimension(function(d) { return -d; });
         assert.deepEqual(foo.top(Infinity), []);
@@ -582,7 +671,7 @@ suite.addBatch({
         assert.deepEqual(bar.top(Infinity), [0, 41, 42, 42, 43, 43, 43, 43]);
       },
       "existing groups are consistent with new records": function(data) {
-        var data = tesseract([]),
+        var data = crossfilter([]),
             foo = data.dimension(function(d) { return +d; }),
             bar = data.dimension(function(d) { return -d; }),
             foos = foo.group(),
@@ -606,7 +695,7 @@ suite.addBatch({
         assert.equal(all.value(), 6);
       },
       "can add new groups that are before existing groups": function(data) {
-        var data = tesseract(),
+        var data = crossfilter(),
             foo = data.dimension(function(d) { return +d; }),
             foos = foo.group().reduce(add, remove, initial).order(order);
         data.add([2]).add([1, 1, 1]);
@@ -617,7 +706,7 @@ suite.addBatch({
         function initial() { return {foo: 0}; }
       },
       "can add more than 256 groups": function(data) {
-        var data = tesseract(),
+        var data = crossfilter(),
             foo = data.dimension(function(d) { return +d; }),
             bar = data.dimension(function(d) { return +d; }),
             foos = foo.group();
@@ -632,7 +721,7 @@ suite.addBatch({
         assert.deepEqual(foos.top(1), [{key: 0, value: 1}]);
       },
       "can add lots of groups in reverse order": function(data) {
-        var data = tesseract(),
+        var data = crossfilter(),
             foo = data.dimension(function(d) { return -d.foo; }),
             bar = data.dimension(function(d) { return d.bar; }),
             foos = foo.group(Math.floor).reduceSum(function(d) { return d.foo; });

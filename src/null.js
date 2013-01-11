@@ -1,3 +1,3 @@
-function tesseract_null() {
+function crossfilter_null() {
   return null;
 }

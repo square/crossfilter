@@ -1,7 +1,7 @@
 // Algorithm designed by Vladimir Yaroslavskiy.
 // Implementation based on the Dart project; see lib/dart/LICENSE for details.
 
-var quicksort = tesseract.quicksort = quicksort_by(tesseract_identity);
+var quicksort = crossfilter.quicksort = quicksort_by(crossfilter_identity);
 
 quicksort.by = quicksort_by;
 
@@ -40,6 +40,8 @@ function quicksort_by(f) {
         e4 = a[i4], x4 = f(e4),
         e5 = a[i5], x5 = f(e5);
 
+    var t;
+
     // Sort the selected 5 elements using a sorting network.
     if (x1 > x2) t = e1, e1 = e2, e2 = t, t = x1, x1 = x2, x2 = t;
     if (x4 > x5) t = e4, e4 = e5, e5 = t, t = x4, x4 = x5, x5 = t;
@@ -55,7 +57,7 @@ function quicksort_by(f) {
         pivot2 = e4, pivotValue2 = x4;
 
     // e2 and e4 have been saved in the pivot variables. They will be written
-    // back, once the partioning is finished.
+    // back, once the partitioning is finished.
     a[i1] = e1;
     a[i2] = a[lo];
     a[i3] = e3;
@@ -71,7 +73,7 @@ function quicksort_by(f) {
     var pivotsEqual = pivotValue1 <= pivotValue2 && pivotValue1 >= pivotValue2;
     if (pivotsEqual) {
 
-      // Degenerated case where the partioning becomes a dutch national flag
+      // Degenerated case where the partitioning becomes a dutch national flag
       // problem.
       //
       // [ |  < pivot  | == pivot | unpartitioned | > pivot  | ]

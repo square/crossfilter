@@ -1,11 +1,11 @@
 var vows = require("vows"),
     assert = require("assert"),
-    tesseract = require("../");
+    crossfilter = require("../");
 
 var suite = vows.describe("select");
 
 suite.addBatch({
-  "heapselect": batch(tesseract.heapselect)
+  "heapselect": batch(crossfilter.heapselect)
 });
 
 function batch(select, extras) {
@@ -52,6 +52,7 @@ function descending(a, b) {
 }
 
 function heapy(array) {
+  var n = array.length;
   for (var i = 1; i < n; ++i) {
     if (array[i] < array[i - 1 >> 1]) {
       return false;

@@ -1,4 +1,4 @@
-var bisect = tesseract.bisect = bisect_by(tesseract_identity);
+var bisect = crossfilter.bisect = bisect_by(crossfilter_identity);
 
 bisect.by = bisect_by;
 

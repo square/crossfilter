@@ -1,9 +1,9 @@
 (function(exports){
-tesseract.version = "1.0.0";
-function tesseract_identity(d) {
+crossfilter.version = "1.1.0";
+function crossfilter_identity(d) {
   return d;
 }
-tesseract.permute = permute;
+crossfilter.permute = permute;
 
 function permute(array, index) {
   for (var i = 0, n = index.length, copy = new Array(n); i < n; ++i) {
@@ -11,7 +11,7 @@ function permute(array, index) {
   }
   return copy;
 }
-var bisect = tesseract.bisect = bisect_by(tesseract_identity);
+var bisect = crossfilter.bisect = bisect_by(crossfilter_identity);
 
 bisect.by = bisect_by;
 
@@ -55,7 +55,7 @@ function bisect_by(f) {
   bisectRight.left = bisectLeft;
   return bisectRight;
 }
-var heap = tesseract.heap = heap_by(tesseract_identity);
+var heap = crossfilter.heap = heap_by(crossfilter_identity);
 
 heap.by = heap_by;
 
@@ -99,7 +99,7 @@ function heap_by(f) {
   heap.sort = sort;
   return heap;
 }
-var heapselect = tesseract.heapselect = heapselect_by(tesseract_identity);
+var heapselect = crossfilter.heapselect = heapselect_by(crossfilter_identity);
 
 heapselect.by = heapselect_by;
 
@@ -135,7 +135,7 @@ function heapselect_by(f) {
 
   return heapselect;
 }
-var insertionsort = tesseract.insertionsort = insertionsort_by(tesseract_identity);
+var insertionsort = crossfilter.insertionsort = insertionsort_by(crossfilter_identity);
 
 insertionsort.by = insertionsort_by;
 
@@ -156,7 +156,7 @@ function insertionsort_by(f) {
 // Algorithm designed by Vladimir Yaroslavskiy.
 // Implementation based on the Dart project; see lib/dart/LICENSE for details.
 
-var quicksort = tesseract.quicksort = quicksort_by(tesseract_identity);
+var quicksort = crossfilter.quicksort = quicksort_by(crossfilter_identity);
 
 quicksort.by = quicksort_by;
 
@@ -195,6 +195,8 @@ function quicksort_by(f) {
         e4 = a[i4], x4 = f(e4),
         e5 = a[i5], x5 = f(e5);
 
+    var t;
+
     // Sort the selected 5 elements using a sorting network.
     if (x1 > x2) t = e1, e1 = e2, e2 = t, t = x1, x1 = x2, x2 = t;
     if (x4 > x5) t = e4, e4 = e5, e5 = t, t = x4, x4 = x5, x5 = t;
@@ -210,7 +212,7 @@ function quicksort_by(f) {
         pivot2 = e4, pivotValue2 = x4;
 
     // e2 and e4 have been saved in the pivot variables. They will be written
-    // back, once the partioning is finished.
+    // back, once the partitioning is finished.
     a[i1] = e1;
     a[i2] = a[lo];
     a[i3] = e3;
@@ -226,7 +228,7 @@ function quicksort_by(f) {
     var pivotsEqual = pivotValue1 <= pivotValue2 && pivotValue1 >= pivotValue2;
     if (pivotsEqual) {
 
-      // Degenerated case where the partioning becomes a dutch national flag
+      // Degenerated case where the partitioning becomes a dutch national flag
       // problem.
       //
       // [ |  < pivot  | == pivot | unpartitioned | > pivot  | ]
@@ -445,28 +447,28 @@ function quicksort_by(f) {
 }
 
 var quicksort_sizeThreshold = 32;
-var tesseract_array8 = tesseract_arrayUntyped,
-    tesseract_array16 = tesseract_arrayUntyped,
-    tesseract_array32 = tesseract_arrayUntyped,
-    tesseract_arrayLengthen = tesseract_identity,
-    tesseract_arrayWiden = tesseract_identity;
+var crossfilter_array8 = crossfilter_arrayUntyped,
+    crossfilter_array16 = crossfilter_arrayUntyped,
+    crossfilter_array32 = crossfilter_arrayUntyped,
+    crossfilter_arrayLengthen = crossfilter_identity,
+    crossfilter_arrayWiden = crossfilter_identity;
 
 if (typeof Uint8Array !== "undefined") {
-  tesseract_array8 = function(n) { return new Uint8Array(n); };
-  tesseract_array16 = function(n) { return new Uint16Array(n); };
-  tesseract_array32 = function(n) { return new Uint32Array(n); };
+  crossfilter_array8 = function(n) { return new Uint8Array(n); };
+  crossfilter_array16 = function(n) { return new Uint16Array(n); };
+  crossfilter_array32 = function(n) { return new Uint32Array(n); };
 
-  tesseract_arrayLengthen = function(array, length) {
+  crossfilter_arrayLengthen = function(array, length) {
     var copy = new array.constructor(length);
     copy.set(array);
     return copy;
   };
 
-  tesseract_arrayWiden = function(array, width) {
+  crossfilter_arrayWiden = function(array, width) {
     var copy;
     switch (width) {
-      case 16: copy = tesseract_array16(array.length); break;
-      case 32: copy = tesseract_array32(array.length); break;
+      case 16: copy = crossfilter_array16(array.length); break;
+      case 32: copy = crossfilter_array32(array.length); break;
       default: throw new Error("invalid array width!");
     }
     copy.set(array);
@@ -474,17 +476,17 @@ if (typeof Uint8Array !== "undefined") {
   };
 }
 
-function tesseract_arrayUntyped(n) {
+function crossfilter_arrayUntyped(n) {
   return new Array(n);
 }
-function tesseract_filterExact(bisect, value) {
+function crossfilter_filterExact(bisect, value) {
   return function(values) {
     var n = values.length;
     return [bisect.left(values, value, 0, n), bisect.right(values, value, 0, n)];
   };
 }
 
-function tesseract_filterRange(bisect, range) {
+function crossfilter_filterRange(bisect, range) {
   var min = range[0],
       max = range[1];
   return function(values) {
@@ -493,38 +495,38 @@ function tesseract_filterRange(bisect, range) {
   };
 }
 
-function tesseract_filterAll(values) {
+function crossfilter_filterAll(values) {
   return [0, values.length];
 }
-function tesseract_null() {
+function crossfilter_null() {
   return null;
 }
-function tesseract_zero() {
+function crossfilter_zero() {
   return 0;
 }
-function tesseract_reduceIncrement(p) {
+function crossfilter_reduceIncrement(p) {
   return p + 1;
 }
 
-function tesseract_reduceDecrement(p) {
+function crossfilter_reduceDecrement(p) {
   return p - 1;
 }
 
-function tesseract_reduceAdd(f) {
+function crossfilter_reduceAdd(f) {
   return function(p, v) {
     return p + +f(v);
   };
 }
 
-function tesseract_reduceSubtract(f) {
+function crossfilter_reduceSubtract(f) {
   return function(p, v) {
     return p - f(v);
   };
 }
-exports.tesseract = tesseract;
+exports.crossfilter = crossfilter;
 
-function tesseract() {
-  var tesseract = {
+function crossfilter() {
+  var crossfilter = {
     add: add,
     dimension: dimension,
     groupAll: groupAll,
@@ -535,11 +537,11 @@ function tesseract() {
       n = 0, // the number of records; data.length
       m = 0, // number of dimensions in use
       M = 8, // number of dimensions that can fit in `filters`
-      filters = tesseract_array8(0), // M bits per record; 1 is filtered out
+      filters = crossfilter_array8(0), // M bits per record; 1 is filtered out
       filterListeners = [], // when the filters change
       dataListeners = []; // when data is added
 
-  // Adds the specified new records to this tesseract.
+  // Adds the specified new records to this crossfilter.
   function add(newData) {
     var n0 = n,
         n1 = newData.length;
@@ -550,11 +552,11 @@ function tesseract() {
     // Notify listeners (dimensions and groups) that new data is available.
     if (n1) {
       data = data.concat(newData);
-      filters = tesseract_arrayLengthen(filters, n += n1);
+      filters = crossfilter_arrayLengthen(filters, n += n1);
       dataListeners.forEach(function(l) { l(newData, n0, n1); });
     }
 
-    return tesseract;
+    return crossfilter;
   }
 
   // Adds a new dimension with the specified value accessor function.
@@ -565,6 +567,7 @@ function tesseract() {
       filterRange: filterRange,
       filterAll: filterAll,
       top: top,
+      bottom: bottom,
       group: group,
       groupAll: groupAll
     };
@@ -576,7 +579,7 @@ function tesseract() {
         newValues, // temporary array storing newly-added values
         newIndex, // temporary array storing newly-added index
         sort = quicksort_by(function(i) { return newValues[i]; }),
-        refilter = tesseract_filterAll, // for recomputing filter
+        refilter = crossfilter_filterAll, // for recomputing filter
         indexListeners = [], // when data is added
         lo0 = 0,
         hi0 = 0;
@@ -589,7 +592,7 @@ function tesseract() {
 
     // Incorporate any existing data into this dimension, and make sure that the
     // filter bitset is wide enough to handle the new dimension.
-    if (m > M) filters = tesseract_arrayWiden(filters, M <<= 1);
+    if (m > M) filters = crossfilter_arrayWiden(filters, M <<= 1);
     preAdd(data, 0, n);
     postAdd(data, 0, n);
 
@@ -599,7 +602,7 @@ function tesseract() {
 
       // Permute new values into natural order using a sorted index.
       newValues = newData.map(value);
-      newIndex = sort(tesseract_range(n1), 0, n1);
+      newIndex = sort(crossfilter_range(n1), 0, n1);
       newValues = permute(newValues, newIndex);
 
       // Bisect newValues to determine which new records are selected.
@@ -624,7 +627,7 @@ function tesseract() {
 
       // Otherwise, create new arrays into which to merge new and old.
       values = new Array(n);
-      index = tesseract_index(n, n);
+      index = crossfilter_index(n, n);
 
       // Merge the old and new sorted values, and old and new index.
       for (i = 0; i0 < n0 && i1 < n1; ++i) {
@@ -715,21 +718,21 @@ function tesseract() {
 
     // Filters this dimension to select the exact value.
     function filterExact(value) {
-      return filterIndex((refilter = tesseract_filterExact(bisect, value))(values));
+      return filterIndex((refilter = crossfilter_filterExact(bisect, value))(values));
     }
 
     // Filters this dimension to select the specified range [lo, hi].
     // The lower bound is inclusive, and the upper bound is exclusive.
     function filterRange(range) {
-      return filterIndex((refilter = tesseract_filterRange(bisect, range))(values));
+      return filterIndex((refilter = crossfilter_filterRange(bisect, range))(values));
     }
 
     // Clears any filters on this dimension.
     function filterAll() {
-      return filterIndex((refilter = tesseract_filterAll)(values));
+      return filterIndex((refilter = crossfilter_filterAll)(values));
     }
 
-    // Returns the top K selected records, based on this dimension's order.
+    // Returns the top K selected records based on this dimension's order.
     // Note: observes this dimension's filter, unlike group and groupAll.
     function top(k) {
       var array = [],
@@ -741,6 +744,24 @@ function tesseract() {
           array.push(data[j]);
           --k;
         }
+      }
+
+      return array;
+    }
+
+    // Returns the bottom K selected records based on this dimension's order.
+    // Note: observes this dimension's filter, unlike group and groupAll.
+    function bottom(k) {
+      var array = [],
+          i = lo0,
+          j;
+
+      while (i < hi0 && k > 0) {
+        if (!filters[j = index[i]]) {
+          array.push(data[j]);
+          --k;
+        }
+        i++;
       }
 
       return array;
@@ -762,20 +783,20 @@ function tesseract() {
       var groups, // array of {key, value}
           groupIndex, // object id ↦ group id
           groupWidth = 8,
-          groupCapacity = tesseract_capacity(groupWidth),
+          groupCapacity = crossfilter_capacity(groupWidth),
           k = 0, // cardinality
           select,
           heap,
           reduceAdd,
           reduceRemove,
           reduceInitial,
-          update = tesseract_null,
-          reset = tesseract_null,
+          update = crossfilter_null,
+          reset = crossfilter_null,
           resetNeeded = true;
 
-      if (arguments.length < 1) key = tesseract_identity;
+      if (arguments.length < 1) key = crossfilter_identity;
 
-      // The group listens to the tesseract for when any dimension changes, so
+      // The group listens to the crossfilter for when any dimension changes, so
       // that it can update the associated reduce values. It must also listen to
       // the parent dimension for when data is added, and compute new keys.
       filterListeners.push(update);
@@ -788,7 +809,7 @@ function tesseract() {
       // This function is responsible for updating groups and groupIndex.
       function add(newValues, newIndex, n0, n1) {
         var oldGroups = groups,
-            reIndex = tesseract_index(k, groupCapacity),
+            reIndex = crossfilter_index(k, groupCapacity),
             add = reduceAdd,
             initial = reduceInitial,
             k0 = k, // old cardinality
@@ -802,12 +823,12 @@ function tesseract() {
             x; // key of group to add
 
         // If a reset is needed, we don't need to update the reduce values.
-        if (resetNeeded) add = initial = tesseract_null;
+        if (resetNeeded) add = initial = crossfilter_null;
 
         // Reset the new groups (k is a lower bound).
         // Also, make sure that groupIndex exists and is long enough.
         groups = new Array(k), k = 0;
-        groupIndex = k0 > 1 ? tesseract_arrayLengthen(groupIndex, n) : tesseract_index(n, groupCapacity);
+        groupIndex = k0 > 1 ? crossfilter_arrayLengthen(groupIndex, n) : crossfilter_index(n, groupCapacity);
 
         // Get the first old key (x0 of g0), if it exists.
         if (k0) x0 = (g0 = oldGroups[0]).key;
@@ -875,8 +896,8 @@ function tesseract() {
             update = updateOne;
             reset = resetOne;
           } else {
-            update = tesseract_null;
-            reset = tesseract_null;
+            update = crossfilter_null;
+            reset = crossfilter_null;
           }
           groupIndex = null;
         }
@@ -886,9 +907,9 @@ function tesseract() {
         // and widen the group index as needed.
         function groupIncrement() {
           if (++k === groupCapacity) {
-            reIndex = tesseract_arrayWiden(reIndex, groupWidth <<= 1);
-            groupIndex = tesseract_arrayWiden(groupIndex, groupWidth);
-            groupCapacity = tesseract_capacity(groupWidth);
+            reIndex = crossfilter_arrayWiden(reIndex, groupWidth <<= 1);
+            groupIndex = crossfilter_arrayWiden(groupIndex, groupWidth);
+            groupCapacity = crossfilter_capacity(groupWidth);
           }
         }
       }
@@ -900,7 +921,8 @@ function tesseract() {
 
         var i,
             k,
-            n;
+            n,
+            g;
 
         // Add the added values.
         for (i = 0, n = added.length; i < n; ++i) {
@@ -1005,12 +1027,12 @@ function tesseract() {
 
       // A convenience method for reducing by count.
       function reduceCount() {
-        return reduce(tesseract_reduceIncrement, tesseract_reduceDecrement, tesseract_zero);
+        return reduce(crossfilter_reduceIncrement, crossfilter_reduceDecrement, crossfilter_zero);
       }
 
       // A convenience method for reducing by sum(value).
       function reduceSum(value) {
-        return reduce(tesseract_reduceAdd(value), tesseract_reduceSubtract(value), tesseract_zero);
+        return reduce(crossfilter_reduceAdd(value), crossfilter_reduceSubtract(value), crossfilter_zero);
       }
 
       // Sets the reduce order, using the specified accessor.
@@ -1023,7 +1045,7 @@ function tesseract() {
 
       // A convenience method for natural ordering by reduce value.
       function orderNatural() {
-        return order(tesseract_identity);
+        return order(crossfilter_identity);
       }
 
       // Returns the cardinality of this group, irrespective of any filters.
@@ -1036,7 +1058,7 @@ function tesseract() {
 
     // A convenience function for generating a singleton group.
     function groupAll() {
-      var g = group(tesseract_null), all = g.all;
+      var g = group(crossfilter_null), all = g.all;
       delete g.all;
       delete g.top;
       delete g.order;
@@ -1065,7 +1087,7 @@ function tesseract() {
         reduceInitial,
         resetNeeded = true;
 
-    // The group listens to the tesseract for when any dimension changes, so
+    // The group listens to the crossfilter for when any dimension changes, so
     // that it can update the reduce value. It must also listen to the parent
     // dimension for when data is added.
     filterListeners.push(update);
@@ -1136,12 +1158,12 @@ function tesseract() {
 
     // A convenience method for reducing by count.
     function reduceCount() {
-      return reduce(tesseract_reduceIncrement, tesseract_reduceDecrement, tesseract_zero);
+      return reduce(crossfilter_reduceIncrement, crossfilter_reduceDecrement, crossfilter_zero);
     }
 
     // A convenience method for reducing by sum(value).
     function reduceSum(value) {
-      return reduce(tesseract_reduceAdd(value), tesseract_reduceSubtract(value), tesseract_zero);
+      return reduce(crossfilter_reduceAdd(value), crossfilter_reduceSubtract(value), crossfilter_zero);
     }
 
     // Returns the computed reduce value.
@@ -1153,32 +1175,32 @@ function tesseract() {
     return reduceCount();
   }
 
-  // Returns the number of records in this tesseract, irrespective of any filters.
+  // Returns the number of records in this crossfilter, irrespective of any filters.
   function size() {
     return n;
   }
 
   return arguments.length
       ? add(arguments[0])
-      : tesseract;
+      : crossfilter;
 }
 
 // Returns an array of size n, big enough to store ids up to m.
-function tesseract_index(n, m) {
+function crossfilter_index(n, m) {
   return (m < 0x101
-      ? tesseract_array8 : m < 0x10001
-      ? tesseract_array16
-      : tesseract_array32)(n);
+      ? crossfilter_array8 : m < 0x10001
+      ? crossfilter_array16
+      : crossfilter_array32)(n);
 }
 
 // Constructs a new array of size n, with sequential values from 0 to n - 1.
-function tesseract_range(n) {
-  var range = tesseract_index(n, n);
+function crossfilter_range(n) {
+  var range = crossfilter_index(n, n);
   for (var i = -1; ++i < n;) range[i] = i;
   return range;
 }
 
-function tesseract_capacity(w) {
+function crossfilter_capacity(w) {
   return w === 8
       ? 0x100 : w === 16
       ? 0x10000

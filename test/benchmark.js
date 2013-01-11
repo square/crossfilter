@@ -1,4 +1,4 @@
-var tesseract = require("../"),
+var crossfilter = require("../"),
     d3 = require("d3");
 
 var then,
@@ -31,9 +31,9 @@ console.log("Synthesizing " + formatNumber(totalSize) + " records: " + formatNum
 var firstBatch = paymentRecords.slice(0, firstSize),
     secondBatch = paymentRecords.slice(firstSize);
 
-// Create the tesseract and relevant dimensions and groups.
+// Create the crossfilter and relevant dimensions and groups.
 then = then2 = Date.now();
-var payments = tesseract(firstBatch),
+var payments = crossfilter(firstBatch),
     all = payments.groupAll(),
     amount = payments.dimension(function(d) { return d.amount; }),
     amounts = amount.group(Math.floor),

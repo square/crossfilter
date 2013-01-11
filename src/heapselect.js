@@ -1,4 +1,4 @@
-var heapselect = tesseract.heapselect = heapselect_by(tesseract_identity);
+var heapselect = crossfilter.heapselect = heapselect_by(crossfilter_identity);
 
 heapselect.by = heapselect_by;
 
