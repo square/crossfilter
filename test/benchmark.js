@@ -99,6 +99,13 @@ for (var i = 0, n = 35, k = 0; i < n; ++i) {
 console.log("Filtering by amount: " + formatNumber((Date.now() - then) / k) + "ms/op.");
 amount.filterAll();
 
+
+// Pivot group construction (not optimized for incremental add so doing this later)
+then = Date.now()
+var daysHoursAmounts = payments.pivotGroup([days, hours, amounts])
+daysHoursAmounts.all()
+console.log("Pivot group construct time: " + formatNumber(Date.now() - then) + "ms.  cardinality=" + daysHoursAmounts.size());
+
 console.log("");
 console.log("Day of Week:");
 x.domain([0, days.top(1)[0].value]);
