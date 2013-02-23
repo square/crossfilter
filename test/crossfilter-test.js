@@ -254,6 +254,142 @@ suite.addBatch({
         }
       },
 
+      "topValues": {
+        "returns the top k values": function(data) {
+          assert.deepEqual(data.total.topValues(3), [300, 290, 270]);
+          assert.deepEqual(data.date.topValues(3), [
+            new Date("2011-11-14T23:28:54Z"),
+            new Date("2011-11-14T23:23:29Z"),
+            new Date("2011-11-14T23:21:22Z")
+         ]);
+        },
+        "observes the associated dimension's filters": function(data) {
+          try {
+            data.quantity.filterExact(4);
+            assert.deepEqual(data.total.topValues(3), [270]);
+          } finally {
+            data.quantity.filterAll();
+          }
+          try {
+            data.date.filterRange([new Date(Date.UTC(2011, 10, 14, 19)), new Date(Date.UTC(2011, 10, 14, 20))]);
+            assert.deepEqual(data.date.topValues(10), [
+              new Date("2011-11-14T19:30:44Z"),
+              new Date("2011-11-14T19:04:22Z"),
+              new Date("2011-11-14T19:00:31Z")
+            ]);
+            data.date.filterRange([Date.UTC(2011, 10, 14, 19), Date.UTC(2011, 10, 14, 20)]); // also comparable
+            assert.deepEqual(data.date.topValues(10), [
+              new Date("2011-11-14T19:30:44Z"),
+              new Date("2011-11-14T19:04:22Z"),
+              new Date("2011-11-14T19:00:31Z")
+            ]);
+          } finally {
+            data.date.filterAll();
+          }
+        },
+        "observes other dimensions' filters": function(data) {
+          try {
+            data.type.filterExact("tab");
+            assert.deepEqual(data.total.topValues(2), [290, 270]);
+            data.type.filterExact("visa");
+            assert.deepEqual(data.total.topValues(1), [300]);
+            data.quantity.filterExact(2);
+            assert.deepEqual(data.tip.topValues(1), [100]);
+          } finally {
+            data.type.filterAll();
+            data.quantity.filterAll();
+          }
+          try {
+            data.type.filterExact("tab");
+            assert.deepEqual(data.date.topValues(2), [
+              new Date("2011-11-14T23:28:54Z"),
+              new Date("2011-11-14T23:23:29Z")
+            ]);
+            data.type.filterExact("visa");
+            assert.deepEqual(data.date.topValues(1), [new Date("2011-11-14T23:16:09Z")]);
+            data.quantity.filterExact(2);
+            assert.deepEqual(data.date.topValues(1), [new Date("2011-11-14T22:58:54Z")]);
+          } finally {
+            data.type.filterAll();
+            data.quantity.filterAll();
+          }
+        },
+        "negative or zero k returns an empty array": function(data) {
+          assert.deepEqual(data.quantity.topValues(0), []);
+          assert.deepEqual(data.quantity.topValues(-1), []);
+          assert.deepEqual(data.quantity.topValues(NaN), []);
+          assert.deepEqual(data.quantity.topValues(-Infinity), []);
+        }
+      },
+
+      "bottomValues": {
+        "returns the bottom k values": function(data) {
+          assert.deepEqual(data.total.bottomValues(3), [89, 90, 90]);
+          assert.deepEqual(data.date.bottomValues(3), [
+            new Date("2011-11-14T16:17:54Z"),
+            new Date("2011-11-14T16:20:19Z"),
+            new Date("2011-11-14T16:28:54Z")
+         ]);
+        },
+        "observes the associated dimension's filters": function(data) {
+          try {
+            data.quantity.filterExact(4);
+            assert.deepEqual(data.total.bottomValues(3), [270]);
+          } finally {
+            data.quantity.filterAll();
+          }
+          try {
+            data.date.filterRange([new Date(Date.UTC(2011, 10, 14, 19)), new Date(Date.UTC(2011, 10, 14, 20))]);
+            assert.deepEqual(data.date.bottomValues(10), [
+              new Date("2011-11-14T19:00:31Z"),
+              new Date("2011-11-14T19:04:22Z"),
+              new Date("2011-11-14T19:30:44Z")
+            ]);
+            data.date.filterRange([Date.UTC(2011, 10, 14, 19), Date.UTC(2011, 10, 14, 20)]); // also comparable
+            assert.deepEqual(data.date.bottomValues(10), [
+              new Date("2011-11-14T19:00:31Z"),
+              new Date("2011-11-14T19:04:22Z"),
+              new Date("2011-11-14T19:30:44Z")
+            ]);
+          } finally {
+            data.date.filterAll();
+          }
+        },
+        "observes other dimensions' filters": function(data) {
+          try {
+            data.type.filterExact("tab");
+            assert.deepEqual(data.total.bottomValues(2), [89, 90]);
+            data.type.filterExact("visa");
+            assert.deepEqual(data.total.bottomValues(1), [100]);
+            data.quantity.filterExact(2);
+            assert.deepEqual(data.tip.bottomValues(1), [0]);
+          } finally {
+            data.type.filterAll();
+            data.quantity.filterAll();
+          }
+          try {
+            data.type.filterExact("tab");
+            assert.deepEqual(data.date.bottomValues(2), [
+              new Date("2011-11-14T16:17:54Z"),
+              new Date("2011-11-14T16:20:19Z")
+            ]);
+            data.type.filterExact("visa");
+            assert.deepEqual(data.date.bottomValues(1), [new Date("2011-11-14T16:28:54Z")]);
+            data.quantity.filterExact(2);
+            assert.deepEqual(data.date.bottomValues(1), [new Date("2011-11-14T17:38:40Z")]);
+          } finally {
+            data.type.filterAll();
+            data.quantity.filterAll();
+          }
+        },
+        "negative or zero k returns an empty array": function(data) {
+          assert.deepEqual(data.quantity.bottomValues(0), []);
+          assert.deepEqual(data.quantity.bottomValues(-1), []);
+          assert.deepEqual(data.quantity.bottomValues(NaN), []);
+          assert.deepEqual(data.quantity.bottomValues(-Infinity), []);
+        }
+      },
+
       "filterExact": {
         "selects records that match the specified value exactly": function(data) {
           try {
