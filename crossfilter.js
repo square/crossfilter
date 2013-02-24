@@ -31,9 +31,10 @@ function bisect_by(f) {
   // a[i:hi] for the right side.
   function bisectLeft(a, x, lo, hi) {
     while (lo < hi) {
-      var mid = lo + hi >> 1;
-      if (f(a[mid]) < x) lo = mid + 1;
-      else hi = mid;
+      var mid = lo + hi >> 1,
+          y = f(a[mid]);
+      if (x <= y || !(y <= y)) hi = mid;
+      else lo = mid + 1;
     }
     return lo;
   }
@@ -174,13 +175,13 @@ function quicksort_by(f) {
 
   function quicksort(a, lo, hi) {
     // First move NaN and undefined to the end.
-    var x;
-    while (lo < hi && !((x = f(a[hi - 1])) <= x || x >= x)) hi--;
-    for (var i = hi - 1; --i >= lo; ) {
-      x = f(a[i]);
-      if (!(x <= x || x >= x)) {
+    var x, y;
+    while (lo < hi && !((x = f(a[hi - 1])) <= x)) hi--;
+    for (var i = hi; --i >= lo; ) {
+      x = f(y = a[i]);
+      if (!(x <= x)) {
         a[i] = a[--hi];
-        a[hi] = x;
+        a[hi] = y;
       }
     }
 
