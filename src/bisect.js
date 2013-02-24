@@ -10,15 +10,18 @@ function bisect_by(f) {
   // present in a, the insertion point will be before (to the left of) any
   // existing entries. The return value is suitable for use as the first
   // argument to `array.splice` assuming that a is already sorted.
+  // Incomparable values such as NaN and undefined are assumed to be at the end
+  // of the array.
   //
   // The returned insertion point i partitions the array a into two halves so
   // that all v < x for v in a[lo:i] for the left side and all v >= x for v in
   // a[i:hi] for the right side.
   function bisectLeft(a, x, lo, hi) {
     while (lo < hi) {
-      var mid = lo + hi >> 1;
-      if (f(a[mid]) < x) lo = mid + 1;
-      else hi = mid;
+      var mid = lo + hi >> 1,
+          y = f(a[mid]);
+      if (x <= y || !(y <= y)) hi = mid;
+      else lo = mid + 1;
     }
     return lo;
   }
@@ -31,8 +34,9 @@ function bisect_by(f) {
   // a[i:hi] for the right side.
   function bisectRight(a, x, lo, hi) {
     while (lo < hi) {
-      var mid = lo + hi >> 1;
-      if (x < f(a[mid])) hi = mid;
+      var mid = lo + hi >> 1,
+          y = f(a[mid]);
+      if (x < y || !(y <= y)) hi = mid;
       else lo = mid + 1;
     }
     return lo;

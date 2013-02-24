@@ -58,6 +58,16 @@ suite.addBatch({
       assert.equal(bisect(array, 4, 2, 3), 3);
       assert.equal(bisect(array, 5, 2, 3), 3);
       assert.equal(bisect(array, 6, 2, 3), 3);
+    },
+    "ignores NaNs at end of array": function(bisect) {
+      var array = [1, 2, NaN, NaN, NaN];
+      assert.equal(bisect(array, 0, 0, 5), 0);
+      assert.equal(bisect(array, 1, 0, 5), 0);
+      assert.equal(bisect(array, 2, 0, 5), 1);
+      assert.equal(bisect(array, 3, 0, 5), 2);
+      assert.equal(bisect(array, 4, 0, 5), 2);
+      assert.equal(bisect(array, 5, 0, 5), 2);
+      assert.equal(bisect(array, 6, 0, 5), 2);
     }
   }
 });
@@ -152,6 +162,16 @@ suite.addBatch({
       assert.equal(bisect(array, 4, 2, 3), 3);
       assert.equal(bisect(array, 5, 2, 3), 3);
       assert.equal(bisect(array, 6, 2, 3), 3);
+    },
+    "ignores NaNs at end of array": function(bisect) {
+      var array = [1, 2, 3, NaN, NaN];
+      assert.equal(bisect(array, 0, 0, 5), 0);
+      assert.equal(bisect(array, 1, 0, 5), 1);
+      assert.equal(bisect(array, 2, 0, 5), 2);
+      assert.equal(bisect(array, 3, 0, 5), 3);
+      assert.equal(bisect(array, 4, 0, 5), 3);
+      assert.equal(bisect(array, 5, 0, 5), 3);
+      assert.equal(bisect(array, 6, 0, 5), 3);
     }
   }
 });
