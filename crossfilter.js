@@ -552,12 +552,15 @@ function crossfilter() {
   // Adds a new dimension with the specified value accessor function.
   function dimension(value) {
     var dimension = {
+      value: value,
       filter: filter,
       filterExact: filterExact,
       filterRange: filterRange,
       filterAll: filterAll,
       top: top,
       bottom: bottom,
+      topValues: topValues,
+      bottomValues: bottomValues,
       group: group,
       groupAll: groupAll
     };
@@ -756,6 +759,42 @@ function crossfilter() {
 
       return array;
     }
+    
+    // Returns the top K dimension values based on this dimension's order.
+    // Note: observes this dimension's filter, unlike group and groupAll.
+    function topValues(k) {
+      var array = [],
+          i = hi0,
+          j;
+
+      while (--i >= lo0 && k > 0) {
+        if (!filters[j = index[i]]) {
+          array.push(value(data[j]));
+          --k;
+        }
+      }
+
+      return array;
+    }
+
+    // Returns the bottom K dimension values based on this dimension's order.
+    // Note: observes this dimension's filter, unlike group and groupAll.
+    function bottomValues(k) {
+      var array = [],
+          i = lo0,
+          j;
+
+      while (i < hi0 && k > 0) {
+        if (!filters[j = index[i]]) {
+          array.push(value(data[j]));
+          --k;
+        }
+        i++;
+      }
+
+      return array;
+    }
+    
 
     // Adds a new group to this dimension, using the specified key function.
     function group(key) {
