@@ -68,6 +68,22 @@ suite.addBatch({
       assert.equal(bisect(array, 4, 0, 5), 2);
       assert.equal(bisect(array, 5, 0, 5), 2);
       assert.equal(bisect(array, 6, 0, 5), 2);
+    },
+    "large arrays": function(bisect) {
+      var array = [],
+          i = 1 << 30;
+      array[i++] = 1;
+      array[i++] = 2;
+      array[i++] = 3;
+      array[i++] = 4;
+      array[i++] = 5;
+      assert.equal(bisect(array, 0, i - 5, i), i - 5);
+      assert.equal(bisect(array, 1, i - 5, i), i - 5);
+      assert.equal(bisect(array, 2, i - 5, i), i - 4);
+      assert.equal(bisect(array, 3, i - 5, i), i - 3);
+      assert.equal(bisect(array, 4, i - 5, i), i - 2);
+      assert.equal(bisect(array, 5, i - 5, i), i - 1);
+      assert.equal(bisect(array, 6, i - 5, i), i - 0);
     }
   }
 });
@@ -115,6 +131,22 @@ suite.addBatch({
       assert.equal(bisect(array, 4, 2, 3), 3);
       assert.equal(bisect(array, 5, 2, 3), 3);
       assert.equal(bisect(array, 6, 2, 3), 3);
+    },
+    "large arrays": function(bisect) {
+      var array = [],
+          i = 1 << 30;
+      array[i++] = {value: 1};
+      array[i++] = {value: 2};
+      array[i++] = {value: 3};
+      array[i++] = {value: 4};
+      array[i++] = {value: 5};
+      assert.equal(bisect(array, 0, i - 5, i), i - 5);
+      assert.equal(bisect(array, 1, i - 5, i), i - 5);
+      assert.equal(bisect(array, 2, i - 5, i), i - 4);
+      assert.equal(bisect(array, 3, i - 5, i), i - 3);
+      assert.equal(bisect(array, 4, i - 5, i), i - 2);
+      assert.equal(bisect(array, 5, i - 5, i), i - 1);
+      assert.equal(bisect(array, 6, i - 5, i), i - 0);
     }
   }
 });
@@ -172,6 +204,22 @@ suite.addBatch({
       assert.equal(bisect(array, 4, 0, 5), 3);
       assert.equal(bisect(array, 5, 0, 5), 3);
       assert.equal(bisect(array, 6, 0, 5), 3);
+    },
+    "large arrays": function(bisect) {
+      var array = [],
+          i = 1 << 30;
+      array[i++] = 1;
+      array[i++] = 2;
+      array[i++] = 3;
+      array[i++] = 4;
+      array[i++] = 5;
+      assert.equal(bisect(array, 0, i - 5, i), i - 5);
+      assert.equal(bisect(array, 1, i - 5, i), i - 4);
+      assert.equal(bisect(array, 2, i - 5, i), i - 3);
+      assert.equal(bisect(array, 3, i - 5, i), i - 2);
+      assert.equal(bisect(array, 4, i - 5, i), i - 1);
+      assert.equal(bisect(array, 5, i - 5, i), i - 0);
+      assert.equal(bisect(array, 6, i - 5, i), i - 0);
     }
   }
 });
@@ -219,6 +267,22 @@ suite.addBatch({
       assert.equal(bisect(array, 4, 2, 3), 3);
       assert.equal(bisect(array, 5, 2, 3), 3);
       assert.equal(bisect(array, 6, 2, 3), 3);
+    },
+    "large arrays": function(bisect) {
+      var array = [],
+          i = 1 << 30;
+      array[i++] = {value: 1};
+      array[i++] = {value: 2};
+      array[i++] = {value: 3};
+      array[i++] = {value: 4};
+      array[i++] = {value: 5};
+      assert.equal(bisect(array, 0, i - 5, i), i - 5);
+      assert.equal(bisect(array, 1, i - 5, i), i - 4);
+      assert.equal(bisect(array, 2, i - 5, i), i - 3);
+      assert.equal(bisect(array, 3, i - 5, i), i - 2);
+      assert.equal(bisect(array, 4, i - 5, i), i - 1);
+      assert.equal(bisect(array, 5, i - 5, i), i - 0);
+      assert.equal(bisect(array, 6, i - 5, i), i - 0);
     }
   }
 });
