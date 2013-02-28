@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# vaccine.js must NOT be in the source list.
+source_dir='src'
+app_name='crossfilter'
+
+version=$(grep '"version"' package.json | cut -d '"' -f 4)
+
+
+echo '(function() {'
+cat src/vaccine.js   # Output vaccine.js separately
+
+for file in "$@"
+do
+  name="$app_name/$(echo "$file" | sed -e "s#^$source_dir/##" -e 's/\.js//')"
+  test "X$name" = "X$app_name/index" && name=$app_name
+  echo "define('$name', function(require, exports, module) {"
+  cat $file
+  test "X$name" = "X$app_name" && echo "exports.version = \"$version\";"
+  echo '});'
+done
+
+echo '}());'

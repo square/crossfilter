@@ -1,21 +1,96 @@
-(function(exports){
-crossfilter.version = "1.1.0";
-function crossfilter_identity(d) {
-  return d;
-}
-crossfilter.permute = permute;
+(function() {
+function define(id, defn) {
 
-function permute(array, index) {
-  for (var i = 0, n = index.length, copy = new Array(n); i < n; ++i) {
-    copy[i] = array[index[i]];
+  var globalVaccine =
+  window.vaccine || (window.vaccine = {
+    // The minimal code required to be vaccine compliant.
+
+    // w = waiting: Functions to be called when a modules
+    // gets defined. w[moduleId] = [array of functions];
+    w: {},
+
+    // m = modules: Modules that have been fully defined.
+    // m[moduleId] = module.exports value
+    m: {},
+
+    // s = set: When a module becomes fully defined, set
+    // the module.exports value here.
+    // s(moduleId, module.exports)
+    s: function(id, val) {
+      this.m[id] = val;
+      (this.w[id] || []).forEach(function(w) { w(); });
+    }
+  });
+  // Set your library with vaccine.s('crossfilter', crossfilter);
+
+  var module = {exports: {}};
+
+  function require(reqId) {
+    return globalVaccine.m[reqId.replace('.', 'crossfilter')];
   }
-  return copy;
+
+  defn(require, module.exports, module);
+  globalVaccine.s(id, module.exports);
 }
-var bisect = crossfilter.bisect = bisect_by(crossfilter_identity);
+define('crossfilter/func', function(require, exports, module) {
+module.exports = exports = {
+  identity: function(d) {
+    return d;
+  },
+  zero: function() {
+    return 0;
+  },
+  nil: function() {
+    return null;
+  },
+  permute: function(array, index) {
+    for (var i = 0, n = index.length, copy = new Array(n); i < n; ++i) {
+      copy[i] = array[index[i]];
+    }
+    return copy;
+  },
+  reduce: {
+    increment: function(p) {
+      return p + 1;
+    },
+    decrement: function(p) {
+      return p - 1;
+    },
+    add: function(f) {
+      return function(p, v) {
+        return p + +f(v);
+      };
+    },
+    subtract: function(f) {
+      return function(p, v) {
+        return p - f(v);
+      };
+    },
+  },
+  filter: {
+    exact: function(bisect, value) {
+      return function(values) {
+        var n = values.length;
+        return [bisect.left(values, value, 0, n), bisect.right(values, value, 0, n)];
+      };
+    },
 
-bisect.by = bisect_by;
+    range: function(bisect, range) {
+      var min = range[0],
+          max = range[1];
+      return function(values) {
+        var n = values.length;
+        return [bisect.left(values, min, 0, n), bisect.left(values, max, 0, n)];
+      };
+    },
 
-function bisect_by(f) {
+    all: function(values) {
+      return [0, values.length];
+    },
+  },
+};
+
+exports.bisect = function(f) {
 
   // Locate the insertion point for x in a to maintain sorted order. The
   // arguments lo and hi may be used to specify a subset of the array which
@@ -54,92 +129,10 @@ function bisect_by(f) {
   bisectRight.right = bisectRight;
   bisectRight.left = bisectLeft;
   return bisectRight;
-}
-var heap = crossfilter.heap = heap_by(crossfilter_identity);
-
-heap.by = heap_by;
-
-function heap_by(f) {
-
-  // Builds a binary heap within the specified array a[lo:hi]. The heap has the
-  // property such that the parent a[lo+i] is always less than or equal to its
-  // two children: a[lo+2*i+1] and a[lo+2*i+2].
-  function heap(a, lo, hi) {
-    var n = hi - lo,
-        i = (n >>> 1) + 1;
-    while (--i > 0) sift(a, i, n, lo);
-    return a;
-  }
-
-  // Sorts the specified array a[lo:hi] in descending order, assuming it is
-  // already a heap.
-  function sort(a, lo, hi) {
-    var n = hi - lo,
-        t;
-    while (--n > 0) t = a[lo], a[lo] = a[lo + n], a[lo + n] = t, sift(a, 1, n, lo);
-    return a;
-  }
-
-  // Sifts the element a[lo+i-1] down the heap, where the heap is the contiguous
-  // slice of array a[lo:lo+n]. This method can also be used to update the heap
-  // incrementally, without incurring the full cost of reconstructing the heap.
-  function sift(a, i, n, lo) {
-    var d = a[--lo + i],
-        x = f(d),
-        child;
-    while ((child = i << 1) <= n) {
-      if (child < n && f(a[lo + child]) > f(a[lo + child + 1])) child++;
-      if (x <= f(a[lo + child])) break;
-      a[lo + i] = a[lo + child];
-      i = child;
-    }
-    a[lo + i] = d;
-  }
-
-  heap.sort = sort;
-  return heap;
-}
-var heapselect = crossfilter.heapselect = heapselect_by(crossfilter_identity);
-
-heapselect.by = heapselect_by;
-
-function heapselect_by(f) {
-  var heap = heap_by(f);
-
-  // Returns a new array containing the top k elements in the array a[lo:hi].
-  // The returned array is not sorted, but maintains the heap property. If k is
-  // greater than hi - lo, then fewer than k elements will be returned. The
-  // order of elements in a is unchanged by this operation.
-  function heapselect(a, lo, hi, k) {
-    var queue = new Array(k = Math.min(hi - lo, k)),
-        min,
-        i,
-        x,
-        d;
-
-    for (i = 0; i < k; ++i) queue[i] = a[lo++];
-    heap(queue, 0, k);
-
-    if (lo < hi) {
-      min = f(queue[0]);
-      do {
-        if (x = f(d = a[lo]) > min) {
-          queue[0] = d;
-          min = f(heap(queue, 0, k)[0]);
-        }
-      } while (++lo < hi);
-    }
-
-    return queue;
-  }
-
-  return heapselect;
-}
-var insertionsort = crossfilter.insertionsort = insertionsort_by(crossfilter_identity);
-
-insertionsort.by = insertionsort_by;
-
-function insertionsort_by(f) {
+};
+});
+define('crossfilter/sort', function(require, exports, module) {
+exports.insertionsort = function(f) {
 
   function insertionsort(a, lo, hi) {
     for (var i = lo + 1; i < hi; ++i) {
@@ -152,16 +145,13 @@ function insertionsort_by(f) {
   }
 
   return insertionsort;
-}
+};
+
 // Algorithm designed by Vladimir Yaroslavskiy.
 // Implementation based on the Dart project; see lib/dart/LICENSE for details.
 
-var quicksort = crossfilter.quicksort = quicksort_by(crossfilter_identity);
-
-quicksort.by = quicksort_by;
-
-function quicksort_by(f) {
-  var insertionsort = insertionsort_by(f);
+exports.quicksort = function(f) {
+  var insertionsort = exports.insertionsort(f);
 
   function sort(a, lo, hi) {
     return (hi - lo < quicksort_sizeThreshold
@@ -437,28 +427,108 @@ function quicksort_by(f) {
 }
 
 var quicksort_sizeThreshold = 32;
-var crossfilter_array8 = crossfilter_arrayUntyped,
-    crossfilter_array16 = crossfilter_arrayUntyped,
-    crossfilter_array32 = crossfilter_arrayUntyped,
-    crossfilter_arrayLengthen = crossfilter_identity,
-    crossfilter_arrayWiden = crossfilter_identity;
+});
+define('crossfilter/struct', function(require, exports, module) {
+var identity = require("./func").identity;
+
+exports.heap = function(f) {
+
+  // Builds a binary heap within the specified array a[lo:hi]. The heap has the
+  // property such that the parent a[lo+i] is always less than or equal to its
+  // two children: a[lo+2*i+1] and a[lo+2*i+2].
+  function heap(a, lo, hi) {
+    var n = hi - lo,
+        i = (n >>> 1) + 1;
+    while (--i > 0) sift(a, i, n, lo);
+    return a;
+  }
+
+  // Sorts the specified array a[lo:hi] in descending order, assuming it is
+  // already a heap.
+  function sort(a, lo, hi) {
+    var n = hi - lo,
+        t;
+    while (--n > 0) t = a[lo], a[lo] = a[lo + n], a[lo + n] = t, sift(a, 1, n, lo);
+    return a;
+  }
+
+  // Sifts the element a[lo+i-1] down the heap, where the heap is the contiguous
+  // slice of array a[lo:lo+n]. This method can also be used to update the heap
+  // incrementally, without incurring the full cost of reconstructing the heap.
+  function sift(a, i, n, lo) {
+    var d = a[--lo + i],
+        x = f(d),
+        child;
+    while ((child = i << 1) <= n) {
+      if (child < n && f(a[lo + child]) > f(a[lo + child + 1])) child++;
+      if (x <= f(a[lo + child])) break;
+      a[lo + i] = a[lo + child];
+      i = child;
+    }
+    a[lo + i] = d;
+  }
+
+  heap.sort = sort;
+  return heap;
+};
+
+
+exports.heap.select = function(f) {
+  var heap = exports.heap(f);
+
+  // Returns a new array containing the top k elements in the array a[lo:hi].
+  // The returned array is not sorted, but maintains the heap property. If k is
+  // greater than hi - lo, then fewer than k elements will be returned. The
+  // order of elements in a is unchanged by this operation.
+  function heapselect(a, lo, hi, k) {
+    var queue = new Array(k = Math.min(hi - lo, k)),
+        min,
+        i,
+        x,
+        d;
+
+    for (i = 0; i < k; ++i) queue[i] = a[lo++];
+    heap(queue, 0, k);
+
+    if (lo < hi) {
+      min = f(queue[0]);
+      do {
+        if (x = f(d = a[lo]) > min) {
+          queue[0] = d;
+          min = f(heap(queue, 0, k)[0]);
+        }
+      } while (++lo < hi);
+    }
+
+    return queue;
+  }
+
+  return heapselect;
+};
+
+
+exports.array8 = untypedArray;
+exports.array16 = untypedArray;
+exports.array32 = untypedArray;
+exports.arrayLengthen = identity;
+exports.arrayWiden = identity;
 
 if (typeof Uint8Array !== "undefined") {
-  crossfilter_array8 = function(n) { return new Uint8Array(n); };
-  crossfilter_array16 = function(n) { return new Uint16Array(n); };
-  crossfilter_array32 = function(n) { return new Uint32Array(n); };
+  exports.array8 = function(n) { return new Uint8Array(n); };
+  exports.array16 = function(n) { return new Uint16Array(n); };
+  exports.array32 = function(n) { return new Uint32Array(n); };
 
-  crossfilter_arrayLengthen = function(array, length) {
+  exports.arrayLengthen = function(array, length) {
     var copy = new array.constructor(length);
     copy.set(array);
     return copy;
   };
 
-  crossfilter_arrayWiden = function(array, width) {
+  exports.arrayWiden = function(array, width) {
     var copy;
     switch (width) {
-      case 16: copy = crossfilter_array16(array.length); break;
-      case 32: copy = crossfilter_array32(array.length); break;
+      case 16: copy = exports.array16(array.length); break;
+      case 32: copy = exports.array32(array.length); break;
       default: throw new Error("invalid array width!");
     }
     copy.set(array);
@@ -466,56 +536,18 @@ if (typeof Uint8Array !== "undefined") {
   };
 }
 
-function crossfilter_arrayUntyped(n) {
+function untypedArray(n) {
   return new Array(n);
 }
-function crossfilter_filterExact(bisect, value) {
-  return function(values) {
-    var n = values.length;
-    return [bisect.left(values, value, 0, n), bisect.right(values, value, 0, n)];
-  };
-}
+});
+define('crossfilter', function(require, exports, module) {
+var struct = require("./struct"),
+    sortModule = require("./sort"),
+    func = require("./func"),
+    identity = func.identity;
 
-function crossfilter_filterRange(bisect, range) {
-  var min = range[0],
-      max = range[1];
-  return function(values) {
-    var n = values.length;
-    return [bisect.left(values, min, 0, n), bisect.left(values, max, 0, n)];
-  };
-}
+module.exports = exports = function() {
 
-function crossfilter_filterAll(values) {
-  return [0, values.length];
-}
-function crossfilter_null() {
-  return null;
-}
-function crossfilter_zero() {
-  return 0;
-}
-function crossfilter_reduceIncrement(p) {
-  return p + 1;
-}
-
-function crossfilter_reduceDecrement(p) {
-  return p - 1;
-}
-
-function crossfilter_reduceAdd(f) {
-  return function(p, v) {
-    return p + +f(v);
-  };
-}
-
-function crossfilter_reduceSubtract(f) {
-  return function(p, v) {
-    return p - f(v);
-  };
-}
-exports.crossfilter = crossfilter;
-
-function crossfilter() {
   var crossfilter = {
     add: add,
     dimension: dimension,
@@ -527,7 +559,7 @@ function crossfilter() {
       n = 0, // the number of records; data.length
       m = 0, // number of dimensions in use
       M = 8, // number of dimensions that can fit in `filters`
-      filters = crossfilter_array8(0), // M bits per record; 1 is filtered out
+      filters = struct.array8(0), // M bits per record; 1 is filtered out
       filterListeners = [], // when the filters change
       dataListeners = []; // when data is added
 
@@ -542,7 +574,7 @@ function crossfilter() {
     // Notify listeners (dimensions and groups) that new data is available.
     if (n1) {
       data = data.concat(newData);
-      filters = crossfilter_arrayLengthen(filters, n += n1);
+      filters = struct.arrayLengthen(filters, n += n1);
       dataListeners.forEach(function(l) { l(newData, n0, n1); });
     }
 
@@ -568,8 +600,8 @@ function crossfilter() {
         index, // value rank ↦ object id
         newValues, // temporary array storing newly-added values
         newIndex, // temporary array storing newly-added index
-        sort = quicksort_by(function(i) { return newValues[i]; }),
-        refilter = crossfilter_filterAll, // for recomputing filter
+        sort = sortModule.quicksort(function(i) { return newValues[i]; }),
+        refilter = func.filter.all, // for recomputing filter
         indexListeners = [], // when data is added
         lo0 = 0,
         hi0 = 0;
@@ -582,7 +614,7 @@ function crossfilter() {
 
     // Incorporate any existing data into this dimension, and make sure that the
     // filter bitset is wide enough to handle the new dimension.
-    if (m > M) filters = crossfilter_arrayWiden(filters, M <<= 1);
+    if (m > M) filters = struct.arrayWiden(filters, M <<= 1);
     preAdd(data, 0, n);
     postAdd(data, 0, n);
 
@@ -592,8 +624,8 @@ function crossfilter() {
 
       // Permute new values into natural order using a sorted index.
       newValues = newData.map(value);
-      newIndex = sort(crossfilter_range(n1), 0, n1);
-      newValues = permute(newValues, newIndex);
+      newIndex = sort(arrayRange(n1), 0, n1);
+      newValues = func.permute(newValues, newIndex);
 
       // Bisect newValues to determine which new records are selected.
       var bounds = refilter(newValues), lo1 = bounds[0], hi1 = bounds[1], i;
@@ -617,7 +649,7 @@ function crossfilter() {
 
       // Otherwise, create new arrays into which to merge new and old.
       values = new Array(n);
-      index = crossfilter_index(n, n);
+      index = createIndex(n, n);
 
       // Merge the old and new sorted values, and old and new index.
       for (i = 0; i0 < n0 && i1 < n1; ++i) {
@@ -708,18 +740,18 @@ function crossfilter() {
 
     // Filters this dimension to select the exact value.
     function filterExact(value) {
-      return filterIndex((refilter = crossfilter_filterExact(bisect, value))(values));
+      return filterIndex((refilter = func.filter.exact(exports.bisect, value))(values));
     }
 
     // Filters this dimension to select the specified range [lo, hi].
     // The lower bound is inclusive, and the upper bound is exclusive.
     function filterRange(range) {
-      return filterIndex((refilter = crossfilter_filterRange(bisect, range))(values));
+      return filterIndex((refilter = func.filter.range(exports.bisect, range))(values));
     }
 
     // Clears any filters on this dimension.
     function filterAll() {
-      return filterIndex((refilter = crossfilter_filterAll)(values));
+      return filterIndex((refilter = func.filter.all)(values));
     }
 
     // Returns the top K selected records based on this dimension's order.
@@ -773,18 +805,18 @@ function crossfilter() {
       var groups, // array of {key, value}
           groupIndex, // object id ↦ group id
           groupWidth = 8,
-          groupCapacity = crossfilter_capacity(groupWidth),
+          groupCapacity = capacity(groupWidth),
           k = 0, // cardinality
           select,
           heap,
           reduceAdd,
           reduceRemove,
           reduceInitial,
-          update = crossfilter_null,
-          reset = crossfilter_null,
+          update = func.nil,
+          reset = func.nil,
           resetNeeded = true;
 
-      if (arguments.length < 1) key = crossfilter_identity;
+      if (arguments.length < 1) key = identity;
 
       // The group listens to the crossfilter for when any dimension changes, so
       // that it can update the associated reduce values. It must also listen to
@@ -799,7 +831,7 @@ function crossfilter() {
       // This function is responsible for updating groups and groupIndex.
       function add(newValues, newIndex, n0, n1) {
         var oldGroups = groups,
-            reIndex = crossfilter_index(k, groupCapacity),
+            reIndex = createIndex(k, groupCapacity),
             add = reduceAdd,
             initial = reduceInitial,
             k0 = k, // old cardinality
@@ -813,12 +845,12 @@ function crossfilter() {
             x; // key of group to add
 
         // If a reset is needed, we don't need to update the reduce values.
-        if (resetNeeded) add = initial = crossfilter_null;
+        if (resetNeeded) add = initial = func.nil;
 
         // Reset the new groups (k is a lower bound).
         // Also, make sure that groupIndex exists and is long enough.
         groups = new Array(k), k = 0;
-        groupIndex = k0 > 1 ? crossfilter_arrayLengthen(groupIndex, n) : crossfilter_index(n, groupCapacity);
+        groupIndex = k0 > 1 ? struct.arrayLengthen(groupIndex, n) : createIndex(n, groupCapacity);
 
         // Get the first old key (x0 of g0), if it exists.
         if (k0) x0 = (g0 = oldGroups[0]).key;
@@ -886,8 +918,8 @@ function crossfilter() {
             update = updateOne;
             reset = resetOne;
           } else {
-            update = crossfilter_null;
-            reset = crossfilter_null;
+            update = func.nil;
+            reset = func.nil;
           }
           groupIndex = null;
         }
@@ -897,9 +929,9 @@ function crossfilter() {
         // and widen the group index as needed.
         function groupIncrement() {
           if (++k === groupCapacity) {
-            reIndex = crossfilter_arrayWiden(reIndex, groupWidth <<= 1);
-            groupIndex = crossfilter_arrayWiden(groupIndex, groupWidth);
-            groupCapacity = crossfilter_capacity(groupWidth);
+            reIndex = struct.arrayWiden(reIndex, groupWidth <<= 1);
+            groupIndex = struct.arrayWiden(groupIndex, groupWidth);
+            groupCapacity = capacity(groupWidth);
           }
         }
       }
@@ -1017,25 +1049,25 @@ function crossfilter() {
 
       // A convenience method for reducing by count.
       function reduceCount() {
-        return reduce(crossfilter_reduceIncrement, crossfilter_reduceDecrement, crossfilter_zero);
+        return reduce(func.reduce.increment, func.reduce.decrement, func.zero);
       }
 
       // A convenience method for reducing by sum(value).
       function reduceSum(value) {
-        return reduce(crossfilter_reduceAdd(value), crossfilter_reduceSubtract(value), crossfilter_zero);
+        return reduce(func.reduce.add(value), func.reduce.subtract(value), func.zero);
       }
 
       // Sets the reduce order, using the specified accessor.
       function order(value) {
-        select = heapselect_by(valueOf);
-        heap = heap_by(valueOf);
+        select = struct.heap.select(valueOf);
+        heap = struct.heap(valueOf);
         function valueOf(d) { return value(d.value); }
         return group;
       }
 
       // A convenience method for natural ordering by reduce value.
       function orderNatural() {
-        return order(crossfilter_identity);
+        return order(identity);
       }
 
       // Returns the cardinality of this group, irrespective of any filters.
@@ -1048,7 +1080,7 @@ function crossfilter() {
 
     // A convenience function for generating a singleton group.
     function groupAll() {
-      var g = group(crossfilter_null), all = g.all;
+      var g = group(func.nil), all = g.all;
       delete g.all;
       delete g.top;
       delete g.order;
@@ -1148,12 +1180,12 @@ function crossfilter() {
 
     // A convenience method for reducing by count.
     function reduceCount() {
-      return reduce(crossfilter_reduceIncrement, crossfilter_reduceDecrement, crossfilter_zero);
+      return reduce(func.reduce.increment, func.reduce.decrement, func.zero);
     }
 
     // A convenience method for reducing by sum(value).
     function reduceSum(value) {
-      return reduce(crossfilter_reduceAdd(value), crossfilter_reduceSubtract(value), crossfilter_zero);
+      return reduce(func.reduce.add(value), func.reduce.subtract(value), func.zero);
     }
 
     // Returns the computed reduce value.
@@ -1175,25 +1207,43 @@ function crossfilter() {
       : crossfilter;
 }
 
+
+exports.permute = func.permute;
+exports.bisect = func.bisect(identity);
+exports.bisect.by = func.bisect;
+exports.heap = struct.heap(identity);
+exports.heap.by = struct.heap;
+exports.heapselect = struct.heap.select(identity);
+exports.heapselect.by = struct.heap.select;
+exports.insertionsort = sortModule.insertionsort(identity);
+exports.insertionsort.by = sortModule.insertionsort;
+exports.quicksort = sortModule.quicksort(identity);
+exports.quicksort.by = sortModule.quicksort;
+
+if (typeof window !== "undefined") window.crossfilter = exports;
+
+
 // Returns an array of size n, big enough to store ids up to m.
-function crossfilter_index(n, m) {
+function createIndex(n, m) {
   return (m < 0x101
-      ? crossfilter_array8 : m < 0x10001
-      ? crossfilter_array16
-      : crossfilter_array32)(n);
+      ? struct.array8 : m < 0x10001
+      ? struct.array16
+      : struct.array32)(n);
 }
 
 // Constructs a new array of size n, with sequential values from 0 to n - 1.
-function crossfilter_range(n) {
-  var range = crossfilter_index(n, n);
+function arrayRange(n) {
+  var range = createIndex(n, n);
   for (var i = -1; ++i < n;) range[i] = i;
   return range;
 }
 
-function crossfilter_capacity(w) {
+function capacity(w) {
   return w === 8
       ? 0x100 : w === 16
       ? 0x10000
       : 0x100000000;
 }
-})(this);
+exports.version = "1.1.0";
+});
+}());
