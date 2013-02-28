@@ -1101,7 +1101,7 @@ function crossfilter() {
     add(data, 0, n);
 
     // Incorporates the specified new values into this group.
-    function add(newData, n0, n1) {
+    function add(newData, n0) {
       var i;
 
       if (resetNeeded) return;
