@@ -7,6 +7,22 @@
     "analytics",
     "visualization"
   ],
+  "author": {
+    "name": "Mike Bostock",
+    "url": "http://bost.ocks.org/mike"
+  },
+  "contributors": [
+    {
+      "name": "Jason Davies",
+      "url": "http://www.jasondavies.com/"
+    }
+  ],
+  "maintainers": [
+    {
+      "name": "Tom Carden",
+      "url": "http://github.com/RandomEtc"
+    }
+  ],
   "homepage": "http://square.github.com/crossfilter/",
   "main": "./index.js",
   "repository": {
@@ -20,12 +36,5 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/vows"
-  },
-  "author": "Mike Bostock (http://bost.ocks.org/mike)",
-  "contributors": [
-    "Jason Davies (http://jasondavies.com)"
-  ],
-  "maintainers": [
-    "Tom Carden (http://github.com/RandomEtc)"
-  ]
+  }
 }
