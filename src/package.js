@@ -10,6 +10,9 @@ util.puts(JSON.stringify({
     "analytics",
     "visualization"
   ],
+  "author": {name: "Mike Bostock", "url": "http://bost.ocks.org/mike"},
+  "contributors": [{name: "Jason Davies", "url": "http://www.jasondavies.com/"}],
+  "maintainers": [{"name": "Tom Carden", "url": "http://github.com/RandomEtc"}],
   "homepage": "http://square.github.com/crossfilter/",
   "main": "./index.js",
   "repository": {
@@ -20,5 +23,6 @@ util.puts(JSON.stringify({
     "d3": "3.0.x",
     "vows": "0.7.0",
     "uglify-js": "2.2.5"
-  }
+  },
+  "scripts": {"test": "./node_modules/.bin/vows"}
 }, null, 2));
