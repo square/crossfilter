@@ -367,6 +367,20 @@ suite.addBatch({
             } finally {
               data.quantity.count.reduceCount();
             }
+          },
+          "no reduceRemove": function(data) {
+            try {
+              data.quantity.count.reduce(
+                  function(p, v) { return Math.max(p, v.total); },
+                  null,
+                  function() { return -Infinity; });
+              assert.strictEqual(data.quantity.count.value(), 300);
+              data.tip.filterExact(100);
+              assert.strictEqual(data.quantity.count.value(), 200);
+            } finally {
+              data.tip.filterAll();
+              data.quantity.count.reduceCount();
+            }
           }
         },
 
@@ -565,6 +579,20 @@ suite.addBatch({
             } finally {
               data.date.hours.reduceCount();
             }
+          },
+          "no reduceRemove": function(data) {
+            try {
+              data.date.hours.reduce(
+                  function(p, v) { return Math.max(p, v.total); },
+                  null,
+                  function() { return -Infinity; });
+              assert.deepEqual(data.date.hours.top(1)[0].value, 300);
+              data.tip.filterExact(100);
+              assert.deepEqual(data.date.hours.top(1)[0].value, 200);
+            } finally {
+              data.tip.filterAll();
+              data.date.hours.reduceCount();
+            }
           }
         },
 
@@ -700,6 +728,20 @@ suite.addBatch({
             data.all.reduceCount();
             assert.strictEqual(data.all.value(), 43);
           } finally {
+            data.all.reduceSum(function(d) { return d.total; });
+          }
+        },
+        "no reduceRemove": function(data) {
+          try {
+            data.all.reduce(
+                function(p, v) { return Math.max(p, v.total); },
+                null,
+                function() { return -Infinity; });
+            assert.deepEqual(data.all.value(), 300);
+            data.tip.filterExact(100);
+            assert.deepEqual(data.all.value(), 200);
+          } finally {
+            data.tip.filterAll();
             data.all.reduceSum(function(d) { return d.total; });
           }
         }

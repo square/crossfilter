@@ -932,6 +932,11 @@ function crossfilter() {
       function updateMany(filterOne, added, removed) {
         if (filterOne === one || resetNeeded) return;
 
+        if (!reduceRemove && removed.length) {
+          resetNeeded = true;
+          return;
+        }
+
         var i,
             k,
             n,
@@ -958,6 +963,11 @@ function crossfilter() {
       // This function is only used when the cardinality is 1.
       function updateOne(filterOne, added, removed) {
         if (filterOne === one || resetNeeded) return;
+
+        if (!reduceRemove && removed.length) {
+          resetNeeded = true;
+          return;
+        }
 
         var i,
             k,
@@ -1151,6 +1161,11 @@ function crossfilter() {
           n;
 
       if (resetNeeded) return;
+
+      if (!reduceRemove && removed.length) {
+        resetNeeded = true;
+        return;
+      }
 
       // Add the added values.
       for (i = 0, n = added.length; i < n; ++i) {
