@@ -1,5 +1,5 @@
 JS_TESTER = ./node_modules/vows/bin/vows
-JS_COMPILER = ./node_modules/uglify-js/bin/uglifyjs
+JS_UGLIFY = ./node_modules/uglify-js/bin/uglifyjs
 
 .PHONY: test benchmark
 
@@ -24,7 +24,7 @@ crossfilter.js: \
 
 %.min.js: %.js Makefile
 	@rm -f $@
-	$(JS_COMPILER) < $< > $@
+	$(JS_UGLIFY) $< -c -m -o $@
 
 %.js:
 	@rm -f $@

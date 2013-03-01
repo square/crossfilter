@@ -308,8 +308,8 @@ function crossfilter() {
         // Get the first old key (x0 of g0), if it exists.
         if (k0) x0 = (g0 = oldGroups[0]).key;
 
-        // Find the first new key (x1), skipping NaN keys.
-        while (i1 < n1 && !((x1 = key(newValues[i1])) >= x1)) ++i1;
+        // Find the first new key (x1).
+        x1 = key(newValues[i1]);
 
         // While new keys remain…
         while (i1 < n1) {
@@ -333,7 +333,7 @@ function crossfilter() {
 
           // Add any selected records belonging to the added group, while
           // advancing the new key and populating the associated group index.
-          while (!(x1 > x)) {
+          while (x1 <= x || !(x1 <= x1) && !(x <= x)) {
             groupIndex[j = newIndex[i1] + n0] = k;
             if (!(filters[j] & zero)) g.value = add(g.value, data[j]);
             if (++i1 >= n1) break;
@@ -572,7 +572,7 @@ function crossfilter() {
     add(data, 0, n);
 
     // Incorporates the specified new values into this group.
-    function add(newData, n0, n1) {
+    function add(newData, n0) {
       var i;
 
       if (resetNeeded) return;
