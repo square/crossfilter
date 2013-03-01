@@ -337,7 +337,11 @@ d3.csv("flights-3m.json", function(flights) {
       date.exit().remove();
 
       var flight = date.order().selectAll(".flight")
-          .data(function(d) { return d.values; }, function(d) { return d.index; });
+          .data(function(d) {
+            // Sort values for each group, since they aren't guaranteed to be
+            // in order within each group.
+            return d.values.sort(function(a, b) { return b.date - a.date; });
+          }, function(d) { return d.index; });
 
       var flightEnter = flight.enter().append("div")
           .attr("class", "flight");
