@@ -525,8 +525,8 @@ function crossfilter() {
 
   var data = [], // the records
       n = 0, // the number of records; data.length
-      m = 0, // number of dimensions in use
       M = 8, // number of dimensions that can fit in `filters`
+      dimensionMask = 0, // a bit mask representing which dimensions are in use.
       filters = crossfilter_array8(0), // M bits per record; 1 is filtered out
       filterListeners = [], // when the filters change
       dataListeners = []; // when data is added
@@ -559,10 +559,11 @@ function crossfilter() {
       top: top,
       bottom: bottom,
       group: group,
-      groupAll: groupAll
+      groupAll: groupAll,
+      remove: remove
     };
 
-    var one = 1 << m++, // bit mask, e.g., 00001000
+    var one = ~dimensionMask & -~dimensionMask, // bit mask, e.g., 00001000
         zero = ~one, // inverted one, e.g., 11110111
         values, // sorted, cached array
         index, // value rank ↦ object id
@@ -571,6 +572,7 @@ function crossfilter() {
         sort = quicksort_by(function(i) { return newValues[i]; }),
         refilter = crossfilter_filterAll, // for recomputing filter
         indexListeners = [], // when data is added
+        dimensionGroups = [],
         lo0 = 0,
         hi0 = 0;
 
@@ -582,7 +584,9 @@ function crossfilter() {
 
     // Incorporate any existing data into this dimension, and make sure that the
     // filter bitset is wide enough to handle the new dimension.
-    if (m > M) filters = crossfilter_arrayWiden(filters, M <<= 1);
+    if (!((dimensionMask |= one) & ((1 << M) - 1))) {
+      filters = crossfilter_arrayWiden(filters, M <<= 1);
+    }
     preAdd(data, 0, n);
     postAdd(data, 0, n);
 
@@ -770,6 +774,9 @@ function crossfilter() {
         size: size,
         remove: remove
       };
+
+      // Ensure that this group will be removed when the dimension is removed.
+      dimensionGroups.push(group);
 
       var groups, // array of {key, value}
           groupIndex, // object id ↦ group id
@@ -1066,6 +1073,17 @@ function crossfilter() {
       delete g.size;
       g.value = function() { return all()[0].value; };
       return g;
+    }
+
+    function remove() {
+      dimensionGroups.forEach(function(group) { group.remove(); });
+      var i = dataListeners.indexOf(preAdd);
+      if (i >= 0) dataListeners.splice(i, 1);
+      i = dataListeners.indexOf(postAdd);
+      if (i >= 0) dataListeners.splice(i, 1);
+      for (i = 0; i < n; ++i) filters[i] &= zero;
+      dimensionMask &= zero;
+      return dimension;
     }
 
     return dimension;
