@@ -10,8 +10,8 @@ function crossfilter() {
 
   var data = [], // the records
       n = 0, // the number of records; data.length
+      m = 0, // a bit mask representing which dimensions are in use
       M = 8, // number of dimensions that can fit in `filters`
-      dimensionMask = 0, // a bit mask representing which dimensions are in use.
       filters = crossfilter_array8(0), // M bits per record; 1 is filtered out
       filterListeners = [], // when the filters change
       dataListeners = []; // when data is added
@@ -48,7 +48,7 @@ function crossfilter() {
       remove: remove
     };
 
-    var one = ~dimensionMask & -~dimensionMask, // bit mask, e.g., 00001000
+    var one = ~m & -~m, // lowest unset bit as mask, e.g., 00001000
         zero = ~one, // inverted one, e.g., 11110111
         values, // sorted, cached array
         index, // value rank ↦ object id
@@ -69,7 +69,8 @@ function crossfilter() {
 
     // Incorporate any existing data into this dimension, and make sure that the
     // filter bitset is wide enough to handle the new dimension.
-    if (!((dimensionMask |= one) & ((1 << M) - 1))) {
+    m |= one;
+    if (M >= 32 ? !one : m & (1 << M) - 1) {
       filters = crossfilter_arrayWiden(filters, M <<= 1);
     }
     preAdd(data, 0, n);
@@ -567,7 +568,7 @@ function crossfilter() {
       i = dataListeners.indexOf(postAdd);
       if (i >= 0) dataListeners.splice(i, 1);
       for (i = 0; i < n; ++i) filters[i] &= zero;
-      dimensionMask &= zero;
+      m &= zero;
       return dimension;
     }
 
