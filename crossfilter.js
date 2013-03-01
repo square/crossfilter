@@ -767,7 +767,8 @@ function crossfilter() {
         reduceSum: reduceSum,
         order: order,
         orderNatural: orderNatural,
-        size: size
+        size: size,
+        remove: remove
       };
 
       var groups, // array of {key, value}
@@ -1043,6 +1044,15 @@ function crossfilter() {
         return k;
       }
 
+      // Removes this group and associated event listeners.
+      function remove() {
+        var i = filterListeners.indexOf(update);
+        if (i >= 0) filterListeners.splice(i, 1);
+        i = indexListeners.indexOf(add);
+        if (i >= 0) indexListeners.splice(i, 1);
+        return group;
+      }
+
       return reduceCount().orderNatural();
     }
 
@@ -1068,7 +1078,8 @@ function crossfilter() {
       reduce: reduce,
       reduceCount: reduceCount,
       reduceSum: reduceSum,
-      value: value
+      value: value,
+      remove: remove
     };
 
     var reduceValue,
@@ -1160,6 +1171,15 @@ function crossfilter() {
     function value() {
       if (resetNeeded) reset(), resetNeeded = false;
       return reduceValue;
+    }
+
+    // Removes this group and associated event listeners.
+    function remove() {
+      var i = filterListeners.indexOf(update);
+      if (i >= 0) filterListeners.splice(i);
+      i = dataListeners.indexOf(add);
+      if (i >= 0) dataListeners.splice(i);
+      return group;
     }
 
     return reduceCount();
