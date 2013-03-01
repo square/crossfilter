@@ -20,5 +20,12 @@
   },
   "scripts": {
     "test": "./node_modules/.bin/vows"
-  }
+  },
+  "author": "Mike Bostock (http://bost.ocks.org/mike)",
+  "contributors": [
+    "Jason Davies (http://jasondavies.com)"
+  ],
+  "maintainers": [
+    "Tom Carden (http://github.com/RandomEtc)"
+  ]
 }
