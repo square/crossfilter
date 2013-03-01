@@ -358,6 +358,17 @@ suite.addBatch({
             } finally {
               data.quantity.count.reduceCount();
             }
+          },
+          "reduceRemove is optional": function(data) {
+            try {
+              data.quantity.count.reduce(
+                  function(p, v) { return Math.max(p, v.total); },
+                  null,
+                  function() { return -Infinity; });
+              assert.strictEqual(data.quantity.count.value(), 300);
+            } finally {
+              data.quantity.count.reduceCount();
+            }
           }
         },
 
@@ -530,6 +541,19 @@ suite.addBatch({
             } finally {
               data.date.hours.reduceCount();
             }
+          },
+          "reduceRemove is optional": function(data) {
+            try {
+              data.date.hours.reduce(
+                  function(p, v) { return Math.max(p, v.total); },
+                  null,
+                  function() { return -Infinity; });
+              assert.deepEqual(data.date.hours.top(1), [
+                {key: new Date(Date.UTC(2011, 10, 14, 16, 00, 00)), value: 300}
+              ]);
+            } finally {
+              data.date.hours.reduceCount();
+            }
           }
         },
 
@@ -595,6 +619,17 @@ suite.addBatch({
           try {
             data.all.reduceCount();
             assert.strictEqual(data.all.value(), 43);
+          } finally {
+            data.all.reduceSum(function(d) { return d.total; });
+          }
+        },
+        "reduceRemove is optional": function(data) {
+          try {
+            data.all.reduce(
+                function(p, v) { return Math.max(p, v.total); },
+                null,
+                function() { return -Infinity; });
+            assert.strictEqual(data.all.value(), 300);
           } finally {
             data.all.reduceSum(function(d) { return d.total; });
           }
