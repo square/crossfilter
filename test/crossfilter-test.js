@@ -320,6 +320,17 @@ suite.addBatch({
         }
       },
 
+      "filterFunction": {
+        "selects records according to an arbitrary function": function(data) {
+          try {
+            data.total.filterFunction(function(d) { return d % 2; });
+            assert.isTrue(data.date.top(Infinity).every(function(d) { return d.total % 2; }));
+          } finally {
+            data.total.filterAll();
+          }
+        }
+      },
+
       "filter": {
         "is equivalent to filterRange when passed an array": function(data) {
           try {
@@ -333,6 +344,14 @@ suite.addBatch({
           try {
             data.total.filter(100);
             assert.isTrue(data.date.top(Infinity).every(function(d) { return d.total == 100; }));
+          } finally {
+            data.total.filter(null);
+          }
+        },
+        "is equivalent to filterFunction when passed a function": function(data) {
+          try {
+            data.total.filter(function(d) { return d % 2; });
+            assert.isTrue(data.date.top(Infinity).every(function(d) { return d.total % 2; }));
           } finally {
             data.total.filter(null);
           }
@@ -830,15 +849,19 @@ suite.addBatch({
         data.add([43]);
         assert.deepEqual(foo.top(Infinity), [43, 43, 43, 42, 42]);
         assert.deepEqual(bar.top(Infinity), [42, 42, 43, 43, 43]);
+        foo.filterFunction(function(d) { return d % 2 === 1; });
+        data.add([44, 44, 45]);
+        assert.deepEqual(foo.top(Infinity), [45, 43, 43, 43, 41]);
+        assert.deepEqual(bar.top(Infinity), [41, 43, 43, 43, 45]);
         bar.filterExact([-43]);
         assert.deepEqual(bar.top(Infinity), [43, 43, 43]);
         data.add([43]);
         assert.deepEqual(bar.top(Infinity), [43, 43, 43, 43]);
         bar.filterAll();
         data.add([0]);
-        assert.deepEqual(bar.top(Infinity), [42, 42, 43, 43, 43, 43]);
+        assert.deepEqual(bar.top(Infinity), [41, 43, 43, 43, 43, 45]);
         foo.filterAll();
-        assert.deepEqual(bar.top(Infinity), [0, 41, 42, 42, 43, 43, 43, 43]);
+        assert.deepEqual(bar.top(Infinity), [0, 41, 42, 42, 43, 43, 43, 43, 44, 44, 45]);
       },
       "existing groups are consistent with new records": function(data) {
         var data = crossfilter([]),
