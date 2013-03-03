@@ -1,5 +1,5 @@
 (function(exports){
-crossfilter.version = "1.1.1";
+crossfilter.version = "1.1.2";
 function crossfilter_identity(d) {
   return d;
 }
@@ -176,7 +176,7 @@ function quicksort_by(f) {
   function quicksort(a, lo, hi) {
     // First move NaN and undefined to the end.
     var x, y;
-    while (lo < hi && !((x = f(a[hi - 1])) <= x)) hi--;
+    while (lo < hi && !(x = f(a[hi - 1]), x <= x)) hi--;
     for (var i = hi; --i >= lo; ) {
       x = f(y = a[i]);
       if (!(x <= x)) {
