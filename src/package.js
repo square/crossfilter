@@ -22,7 +22,7 @@ util.puts(JSON.stringify({
   "devDependencies": {
     "d3": "3.0.x",
     "vows": "0.7.0",
-    "uglify-js": "2.2.5"
+    "uglify-js": "git://github.com/mishoo/UglifyJS2.git#aebafad4"
   },
   "scripts": {"test": "./node_modules/.bin/vows"}
 }, null, 2));
