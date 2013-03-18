@@ -1151,7 +1151,7 @@ function crossfilter() {
   }
 
   // A convenience method for groupAll on a dummy dimension.
-  // This implementation can be optimized since it is always cardinality 1.
+  // This implementation can be optimized since it always has cardinality 1.
   function groupAll() {
     var group = {
       reduce: reduce,
