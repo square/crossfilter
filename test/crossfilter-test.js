@@ -74,6 +74,15 @@ suite.addBatch({
       assert.throws(function() { data.dimension(function() { return 0; }); }, Error);
     },
 
+    "can add and remove 32 dimensions repeatedly": function() {
+      var data = crossfilter([]),
+          dimensions = [];
+      for (var j = 0; j < 10; j++) {
+        for (var i = 0; i < 32; i++) dimensions.push(data.dimension(function() { return 0; }));
+        while (dimensions.length) dimensions.pop().remove();
+      }
+    },
+
     "dimension": {
 
       "top": {
@@ -311,6 +320,17 @@ suite.addBatch({
         }
       },
 
+      "filterFunction": {
+        "selects records according to an arbitrary function": function(data) {
+          try {
+            data.total.filterFunction(function(d) { return d % 2; });
+            assert.isTrue(data.date.top(Infinity).every(function(d) { return d.total % 2; }));
+          } finally {
+            data.total.filterAll();
+          }
+        }
+      },
+
       "filter": {
         "is equivalent to filterRange when passed an array": function(data) {
           try {
@@ -324,6 +344,14 @@ suite.addBatch({
           try {
             data.total.filter(100);
             assert.isTrue(data.date.top(Infinity).every(function(d) { return d.total == 100; }));
+          } finally {
+            data.total.filter(null);
+          }
+        },
+        "is equivalent to filterFunction when passed a function": function(data) {
+          try {
+            data.total.filter(function(d) { return d % 2; });
+            assert.isTrue(data.date.top(Infinity).every(function(d) { return d.total % 2; }));
           } finally {
             data.total.filter(null);
           }
@@ -407,6 +435,32 @@ suite.addBatch({
               data.type.filterAll();
               data.tip.filterAll();
             }
+          }
+        },
+
+        "remove": {
+          "detaches from reduce listeners": function() {
+            var data = crossfilter([0, 1, 2]),
+                callback, // indicates a reduce has occurred in this group
+                dimension = data.dimension(function(d) { return d; }),
+                other = data.dimension(function(d) { return d; }),
+                all = dimension.groupAll().reduce(function() { callback = true; }, function() { callback = true; }, function() {});
+            all.value(); // force this group to be reduced when filters change
+            callback = false;
+            all.remove();
+            other.filterRange([1, 2]);
+            assert.isFalse(callback);
+          },
+          "detaches from add listeners": function() {
+            var data = crossfilter([0, 1, 2]),
+                callback, // indicates data has been added and triggered a reduce
+                dimension = data.dimension(function(d) { return d; }),
+                all = dimension.groupAll().reduce(function() { callback = true; }, function() { callback = true; }, function() {});
+            all.value(); // force this group to be reduced when data is added
+            callback = false;
+            all.remove();
+            data.add([3, 4, 5]);
+            assert.isFalse(callback);
           }
         }
       },
@@ -575,6 +629,75 @@ suite.addBatch({
               data.date.hours.reduceCount().orderNatural();
             }
           }
+        },
+
+        "remove": {
+          "detaches from reduce listeners": function() {
+            var data = crossfilter([0, 1, 2]),
+                callback, // indicates a reduce has occurred in this group
+                dimension = data.dimension(function(d) { return d; }),
+                other = data.dimension(function(d) { return d; }),
+                group = dimension
+                  .group(function(d) { return d; })
+                  .reduce(function() { callback = true; }, function() { callback = true; }, function() {});
+            group.all(); // force this group to be reduced when filters change
+            callback = false;
+            group.remove();
+            other.filterRange([1, 2]);
+            assert.isFalse(callback);
+          },
+          "detaches from add listeners": function() {
+            var data = crossfilter([0, 1, 2]),
+                callback, // indicates data has been added and the group has been reduced
+                dimension = data.dimension(function(d) { return d; }),
+                group = dimension
+                  .group(function(d) { return d; })
+                  .reduce(function() { callback = true; }, function() { callback = true; }, function() {});
+            group.all(); // force this group to be reduced when filters change
+            callback = false;
+            group.remove();
+            data.add([3, 4, 5]);
+            assert.isFalse(callback);
+          }
+        }
+      },
+
+      "remove": {
+        "detaches from add listeners": function() {
+          var data = crossfilter([0, 1, 2]),
+              callback, // indicates a reduce has occurred in this group
+              dimension = data.dimension(function(d) { callback = true; return d; });
+          callback = false;
+          dimension.remove();
+          data.add([3, 4, 5]);
+          assert.isFalse(callback);
+        },
+        "detaches groups from reduce listeners": function() {
+          var data = crossfilter([0, 1, 2]),
+              callback, // indicates a reduce has occurred in this group
+              dimension = data.dimension(function(d) { return d; }),
+              other = data.dimension(function(d) { return d; }),
+              group = dimension
+                .group(function(d) { return d; })
+                .reduce(function() { callback = true; }, function() { callback = true; }, function() {});
+          group.all(); // force this group to be reduced when filters change
+          callback = false;
+          dimension.remove();
+          other.filterRange([1, 2]);
+          assert.isFalse(callback);
+        },
+        "detaches groups from add listeners": function() {
+          var data = crossfilter([0, 1, 2]),
+              callback, // indicates data has been added and the group has been reduced
+              dimension = data.dimension(function(d) { return d; }),
+              group = dimension
+                .group(function(d) { return d; })
+                .reduce(function() { callback = true; }, function() { callback = true; }, function() {});
+          group.all(); // force this group to be reduced when filters change
+          callback = false;
+          dimension.remove();
+          data.add([3, 4, 5]);
+          assert.isFalse(callback);
         }
       }
     },
@@ -618,6 +741,30 @@ suite.addBatch({
             data.tip.filterAll();
           }
         }
+      },
+
+      "remove": {
+        "detaches from reduce listeners": function() {
+          var data = crossfilter([0, 1, 2]),
+              callback, // indicates a reduce has occurred in this group
+              other = data.dimension(function(d) { return d; }),
+              all = data.groupAll().reduce(function() { callback = true; }, function() { callback = true; }, function() {});
+          all.value(); // force this group to be reduced when filters change
+          callback = false;
+          all.remove();
+          other.filterRange([1, 2]);
+          assert.isFalse(callback);
+        },
+        "detaches from add listeners": function() {
+          var data = crossfilter([0, 1, 2]),
+              callback, // indicates data has been added and triggered a reduce
+              all = data.groupAll().reduce(function() { callback = true; }, function() { callback = true; }, function() {});
+          all.value(); // force this group to be reduced when data is added
+          callback = false;
+          all.remove();
+          data.add([3, 4, 5]);
+          assert.isFalse(callback);
+        }
       }
     },
 
@@ -660,15 +807,19 @@ suite.addBatch({
         data.add([43]);
         assert.deepEqual(foo.top(Infinity), [43, 43, 43, 42, 42]);
         assert.deepEqual(bar.top(Infinity), [42, 42, 43, 43, 43]);
+        foo.filterFunction(function(d) { return d % 2 === 1; });
+        data.add([44, 44, 45]);
+        assert.deepEqual(foo.top(Infinity), [45, 43, 43, 43, 41]);
+        assert.deepEqual(bar.top(Infinity), [41, 43, 43, 43, 45]);
         bar.filterExact([-43]);
         assert.deepEqual(bar.top(Infinity), [43, 43, 43]);
         data.add([43]);
         assert.deepEqual(bar.top(Infinity), [43, 43, 43, 43]);
         bar.filterAll();
         data.add([0]);
-        assert.deepEqual(bar.top(Infinity), [42, 42, 43, 43, 43, 43]);
+        assert.deepEqual(bar.top(Infinity), [41, 43, 43, 43, 43, 45]);
         foo.filterAll();
-        assert.deepEqual(bar.top(Infinity), [0, 41, 42, 42, 43, 43, 43, 43]);
+        assert.deepEqual(bar.top(Infinity), [0, 41, 42, 42, 43, 43, 43, 43, 44, 44, 45]);
       },
       "existing groups are consistent with new records": function(data) {
         var data = crossfilter([]),
