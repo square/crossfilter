@@ -1,5 +1,5 @@
 (function(exports){
-crossfilter.version = "1.1.3";
+crossfilter.version = "1.2.0";
 function crossfilter_identity(d) {
   return d;
 }
@@ -23,18 +23,15 @@ function bisect_by(f) {
   // present in a, the insertion point will be before (to the left of) any
   // existing entries. The return value is suitable for use as the first
   // argument to `array.splice` assuming that a is already sorted.
-  // Incomparable values such as NaN and undefined are assumed to be at the end
-  // of the array.
   //
   // The returned insertion point i partitions the array a into two halves so
   // that all v < x for v in a[lo:i] for the left side and all v >= x for v in
   // a[i:hi] for the right side.
   function bisectLeft(a, x, lo, hi) {
     while (lo < hi) {
-      var mid = lo + hi >>> 1,
-          y = f(a[mid]);
-      if (x <= y || !(y <= y)) hi = mid;
-      else lo = mid + 1;
+      var mid = lo + hi >>> 1;
+      if (f(a[mid]) < x) lo = mid + 1;
+      else hi = mid;
     }
     return lo;
   }
@@ -47,9 +44,8 @@ function bisect_by(f) {
   // a[i:hi] for the right side.
   function bisectRight(a, x, lo, hi) {
     while (lo < hi) {
-      var mid = lo + hi >>> 1,
-          y = f(a[mid]);
-      if (x < y || !(y <= y)) hi = mid;
+      var mid = lo + hi >>> 1;
+      if (x < f(a[mid])) hi = mid;
       else lo = mid + 1;
     }
     return lo;
@@ -147,7 +143,7 @@ function insertionsort_by(f) {
 
   function insertionsort(a, lo, hi) {
     for (var i = lo + 1; i < hi; ++i) {
-      for (var j = i, t = a[i], x = f(t), y; j > lo && ((y = f(a[j - 1])) > x || !(y <= y)); --j) {
+      for (var j = i, t = a[i], x = f(t); j > lo && f(a[j - 1]) > x; --j) {
         a[j] = a[j - 1];
       }
       a[j] = t;
@@ -174,17 +170,6 @@ function quicksort_by(f) {
   }
 
   function quicksort(a, lo, hi) {
-    // First move NaN and undefined to the end.
-    var x, y;
-    while (lo < hi && !((x = f(a[hi - 1])) <= x)) hi--;
-    for (var i = hi; --i >= lo; ) {
-      x = f(y = a[i]);
-      if (!(x <= x)) {
-        a[i] = a[--hi];
-        a[hi] = y;
-      }
-    }
-
     // Compute the two pivots by looking at 5 elements.
     var sixth = (hi - lo) / 6 | 0,
         i1 = lo + sixth,
@@ -892,8 +877,8 @@ function crossfilter() {
         // Get the first old key (x0 of g0), if it exists.
         if (k0) x0 = (g0 = oldGroups[0]).key;
 
-        // Find the first new key (x1).
-        x1 = key(newValues[i1]);
+        // Find the first new key (x1), skipping NaN keys.
+        while (i1 < n1 && !((x1 = key(newValues[i1])) >= x1)) ++i1;
 
         // While new keys remain…
         while (i1 < n1) {
@@ -917,7 +902,7 @@ function crossfilter() {
 
           // Add any selected records belonging to the added group, while
           // advancing the new key and populating the associated group index.
-          while (x1 <= x || !(x1 <= x1) && !(x <= x)) {
+          while (!(x1 > x)) {
             groupIndex[j = newIndex[i1] + n0] = k;
             if (!(filters[j] & zero)) g.value = add(g.value, data[j]);
             if (++i1 >= n1) break;
