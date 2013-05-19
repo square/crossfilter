@@ -230,8 +230,8 @@ d3.csv("flights-3m.json", function(error, flights) {
   // Create the crossfilter for the relevant dimensions and groups.
   var flight = crossfilter(flights),
       all = flight.groupAll(),
-      date = flight.dimension(function(d) { return d3.time.day(d.date); }),
-      dates = date.group(),
+      date = flight.dimension(function(d) { return d.date; }),
+      dates = date.group(d3.time.day),
       hour = flight.dimension(function(d) { return d.date.getHours() + d.date.getMinutes() / 60; }),
       hours = hour.group(Math.floor),
       delay = flight.dimension(function(d) { return Math.max(-60, Math.min(149, d.delay)); }),
@@ -337,11 +337,7 @@ d3.csv("flights-3m.json", function(error, flights) {
       date.exit().remove();
 
       var flight = date.order().selectAll(".flight")
-          .data(function(d) {
-            // Sort values for each group, since they aren't guaranteed to be
-            // in order within each group.
-            return d.values.sort(function(a, b) { return b.date - a.date; });
-          }, function(d) { return d.index; });
+          .data(function(d) { return d.values; }, function(d) { return d.index; });
 
       var flightEnter = flight.enter().append("div")
           .attr("class", "flight");
