@@ -35,7 +35,7 @@ function crossfilter() {
   }
 
   // Adds a new dimension with the specified value accessor function.
-  function dimension(value) {
+  function dimension(value, is_multi) {
     var dimension = {
       filter: filter,
       filterExact: filterExact,
@@ -85,6 +85,9 @@ function crossfilter() {
 
       // Permute new values into natural order using a sorted index.
       newValues = newData.map(value);
+	  if(is_multi) {
+		 newValues = [].concat.apply([], newValues);
+	  }
       newIndex = sort(crossfilter_range(n1), 0, n1);
       newValues = permute(newValues, newIndex);
 
