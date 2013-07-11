@@ -46,7 +46,8 @@ function crossfilter() {
       bottom: bottom,
       group: group,
       groupAll: groupAll,
-      remove: remove
+      remove: remove,
+      accessor: accessor
     };
 
     var one = ~m & -~m, // lowest unset bit as mask, e.g., 00001000
@@ -616,6 +617,11 @@ function crossfilter() {
       for (i = 0; i < n; ++i) filters[i] &= zero;
       m &= zero;
       return dimension;
+    }
+
+    // Utility function that runs the dimension accessor on an arbitrary value.
+    function accessor(d) {
+      return value(d);
     }
 
     return dimension;
