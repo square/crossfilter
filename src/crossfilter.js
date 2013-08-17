@@ -3,6 +3,7 @@ exports.crossfilter = crossfilter;
 function crossfilter() {
   var crossfilter = {
     add: add,
+    remove: removeData,
     dimension: dimension,
     groupAll: groupAll,
     size: size
@@ -14,7 +15,8 @@ function crossfilter() {
       M = 8, // number of dimensions that can fit in `filters`
       filters = crossfilter_array8(0), // M bits per record; 1 is filtered out
       filterListeners = [], // when the filters change
-      dataListeners = []; // when data is added
+      dataListeners = [], // when data is added
+      removeDataListeners = []; // when data is removed
 
   // Adds the specified new records to this crossfilter.
   function add(newData) {
@@ -32,6 +34,32 @@ function crossfilter() {
     }
 
     return crossfilter;
+  }
+
+  // Removes all records that match the current filters.
+  function removeData() {
+    var newIndex = crossfilter_index(n, n),
+        removed = [];
+    for (var i = 0, j = 0; i < n; ++i) {
+      if (filters[i]) newIndex[i] = j++;
+      else removed.push(i);
+    }
+
+    // Remove all matching records from groups.
+    filterListeners.forEach(function(l) { l(0, [], removed); });
+
+    // Update indexes.
+    removeDataListeners.forEach(function(l) { l(newIndex); });
+
+    // Remove old filters and data by overwriting.
+    for (var i = 0, j = 0, k; i < n; ++i) {
+      if (k = filters[i]) {
+        if (i !== j) filters[j] = k, data[j] = data[i];
+        ++j;
+      }
+    }
+    data.length = j;
+    while (n > j) filters[--n] = 0;
   }
 
   // Adds a new dimension with the specified value accessor function.
@@ -68,6 +96,8 @@ function crossfilter() {
     // updated their filters, the groups are notified to update.
     dataListeners.unshift(preAdd);
     dataListeners.push(postAdd);
+
+    removeDataListeners.push(removeData);
 
     // Incorporate any existing data into this dimension, and make sure that the
     // filter bitset is wide enough to handle the new dimension.
@@ -148,6 +178,22 @@ function crossfilter() {
     function postAdd(newData, n0, n1) {
       indexListeners.forEach(function(l) { l(newValues, newIndex, n0, n1); });
       newValues = newIndex = null;
+    }
+
+    function removeData(reIndex) {
+      for (var i = 0, j = 0, k; i < n; ++i) {
+        if (filters[k = index[i]] && i !== j) {
+          values[j] = values[i];
+          index[j] = reIndex[k];
+          ++j;
+        }
+      }
+      values.length = j;
+      while (j < n) index[j++] = 0;
+
+      // Bisect again to recompute lo0 and hi0.
+      var bounds = refilter(values);
+      lo0 = bounds[0], hi0 = bounds[1];
     }
 
     // Updates the selected values based on the specified bounds [lo, hi].
@@ -331,6 +377,7 @@ function crossfilter() {
       // the parent dimension for when data is added, and compute new keys.
       filterListeners.push(update);
       indexListeners.push(add);
+      removeDataListeners.push(removeData);
 
       // Incorporate any existing data into the grouping.
       add(values, index, 0, n);
@@ -440,6 +487,15 @@ function crossfilter() {
             reIndex = crossfilter_arrayWiden(reIndex, groupWidth <<= 1);
             groupIndex = crossfilter_arrayWiden(groupIndex, groupWidth);
             groupCapacity = crossfilter_capacity(groupWidth);
+          }
+        }
+      }
+
+      function removeData() {
+        for (var i = 0, j = 0; i < n; ++i) {
+          if (filters[i]) {
+            if (i !== j) groupIndex[j] = groupIndex[i];
+            ++j;
           }
         }
       }
@@ -589,6 +645,8 @@ function crossfilter() {
         if (i >= 0) filterListeners.splice(i, 1);
         i = indexListeners.indexOf(add);
         if (i >= 0) indexListeners.splice(i, 1);
+        i = removeDataListeners.indexOf(removeData);
+        if (i >= 0) removeDataListeners.splice(i, 1);
         return group;
       }
 
@@ -613,6 +671,8 @@ function crossfilter() {
       if (i >= 0) dataListeners.splice(i, 1);
       i = dataListeners.indexOf(postAdd);
       if (i >= 0) dataListeners.splice(i, 1);
+      i = removeDataListeners.indexOf(removeData);
+      if (i >= 0) removeDataListeners.splice(i, 1);
       for (i = 0; i < n; ++i) filters[i] &= zero;
       m &= zero;
       return dimension;

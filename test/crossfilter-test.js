@@ -884,6 +884,36 @@ suite.addBatch({
         }
         assert.deepEqual(foos.top(1), [{key: -998, value: 8977.5}]);
       }
+    },
+    "remove": {
+      topic: function() {
+        var data = crossfilter();
+        data.foo = data.dimension(function(d) { return d.foo; });
+        data.foo.evenOdd = data.foo.group(function(value) { return Math.floor(value / 2); });
+        return data;
+      },
+      "removing a record updates dimension": function(data) {
+        data.add([{foo: 1}, {foo: 2}]);
+        data.foo.filterExact(1);
+        data.remove();
+        data.foo.filterAll();
+        assert.deepEqual(data.foo.top(Infinity), [{foo: 2}]);
+        data.remove();
+        assert.deepEqual(data.foo.top(Infinity), []);
+      },
+      "removing records updates group": function(data) {
+        data.add([{foo: 1}, {foo: 2}, {foo: 3}]);
+        assert.deepEqual(data.foo.top(Infinity), [{foo: 3}, {foo: 2}, {foo: 1}]);
+        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 1}, {key: 1, value: 2}]);
+        data.foo.filterRange([1, 3]);
+        data.remove();
+        data.foo.filterAll();
+        assert.deepEqual(data.foo.top(Infinity), [{foo: 3}]);
+        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 0}, {key: 1, value: 1}]);
+        data.remove();
+        assert.deepEqual(data.foo.top(Infinity), []);
+        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 0}, {key: 1, value: 0}]);
+      }
     }
   }
 });
