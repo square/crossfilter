@@ -791,6 +791,16 @@ suite.addBatch({
         data.add([]);
         assert.equal(data.size(), 10);
       },
+      "transforms non-array params into an array": function() {
+        var data = crossfilter([]);
+        assert.equal(data.size(), 0);
+        data.add(1);
+        data.add(2);
+        data.add(3);
+        assert.equal(data.size(), 3);
+        data.add([4,5,6,7]);
+        assert.equal(data.size(), 7);
+      },
       "existing filters are consistent with new records": function(data) {
         var data = crossfilter([]),
             foo = data.dimension(function(d) { return +d; }),
