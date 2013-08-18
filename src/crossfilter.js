@@ -18,6 +18,12 @@ function crossfilter() {
 
   // Adds the specified new records to this crossfilter.
   function add(newData) {
+
+    if (!(newData instanceof Array)) {
+        // Transform the param into an array if it isn't one already.
+        newData = [newData];
+    }
+
     var n0 = n,
         n1 = newData.length;
 
