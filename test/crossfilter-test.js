@@ -71,7 +71,6 @@ suite.addBatch({
     "up to 32 dimensions supported": function() {
       var data = crossfilter([]);
       for (var i = 0; i < 32; i++) data.dimension(function() { return 0; });
-      assert.throws(function() { data.dimension(function() { return 0; }); }, Error);
     },
 
     "can add and remove 32 dimensions repeatedly": function() {
@@ -81,6 +80,21 @@ suite.addBatch({
         for (var i = 0; i < 32; i++) dimensions.push(data.dimension(function() { return 0; }));
         while (dimensions.length) dimensions.pop().remove();
       }
+    },
+
+    "up to 64 dimensions supported": function() {
+      var data = crossfilter([]);
+      for (var i = 0; i < 64; i++) data.dimension(function() { return 0; });
+    },
+
+    "can add and remove 64 dimensions repeatedly": function() {
+      var data = crossfilter([]),
+          dimensions = [];
+      for (var j = 0; j < 10; j++) {
+        for (var i = 0; i < 64; i++) dimensions.push(data.dimension(function() { return 0; }));
+        while (dimensions.length) dimensions.pop().remove();
+      }
+      console.log(data.filters)
     },
 
     "dimension": {
