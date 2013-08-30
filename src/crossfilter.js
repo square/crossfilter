@@ -74,7 +74,8 @@ function crossfilter() {
       bottom: bottom,
       group: group,
       groupAll: groupAll,
-      remove: remove
+      dispose: dispose,
+      remove: dispose // for backwards-compatibility
     };
 
     var one = ~m & -~m, // lowest unset bit as mask, e.g., 00001000
@@ -350,7 +351,8 @@ function crossfilter() {
         order: order,
         orderNatural: orderNatural,
         size: size,
-        remove: remove
+        dispose: dispose,
+        remove: dispose // for backwards-compatibility
       };
 
       // Ensure that this group will be removed when the dimension is removed.
@@ -640,7 +642,7 @@ function crossfilter() {
       }
 
       // Removes this group and associated event listeners.
-      function remove() {
+      function dispose() {
         var i = filterListeners.indexOf(update);
         if (i >= 0) filterListeners.splice(i, 1);
         i = indexListeners.indexOf(add);
@@ -665,8 +667,8 @@ function crossfilter() {
       return g;
     }
 
-    function remove() {
-      dimensionGroups.forEach(function(group) { group.remove(); });
+    function dispose() {
+      dimensionGroups.forEach(function(group) { group.dispose(); });
       var i = dataListeners.indexOf(preAdd);
       if (i >= 0) dataListeners.splice(i, 1);
       i = dataListeners.indexOf(postAdd);
@@ -689,7 +691,8 @@ function crossfilter() {
       reduceCount: reduceCount,
       reduceSum: reduceSum,
       value: value,
-      remove: remove
+      dispose: dispose,
+      remove: dispose // for backwards-compatibility
     };
 
     var reduceValue,
@@ -784,7 +787,7 @@ function crossfilter() {
     }
 
     // Removes this group and associated event listeners.
-    function remove() {
+    function dispose() {
       var i = filterListeners.indexOf(update);
       if (i >= 0) filterListeners.splice(i);
       i = dataListeners.indexOf(add);
