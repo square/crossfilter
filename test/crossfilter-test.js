@@ -79,7 +79,7 @@ suite.addBatch({
           dimensions = [];
       for (var j = 0; j < 10; j++) {
         for (var i = 0; i < 32; i++) dimensions.push(data.dimension(function() { return 0; }));
-        while (dimensions.length) dimensions.pop().remove();
+        while (dimensions.length) dimensions.pop().dispose();
       }
     },
 
@@ -438,7 +438,7 @@ suite.addBatch({
           }
         },
 
-        "remove": {
+        "dispose": {
           "detaches from reduce listeners": function() {
             var data = crossfilter([0, 1, 2]),
                 callback, // indicates a reduce has occurred in this group
@@ -447,7 +447,7 @@ suite.addBatch({
                 all = dimension.groupAll().reduce(function() { callback = true; }, function() { callback = true; }, function() {});
             all.value(); // force this group to be reduced when filters change
             callback = false;
-            all.remove();
+            all.dispose();
             other.filterRange([1, 2]);
             assert.isFalse(callback);
           },
@@ -458,7 +458,7 @@ suite.addBatch({
                 all = dimension.groupAll().reduce(function() { callback = true; }, function() { callback = true; }, function() {});
             all.value(); // force this group to be reduced when data is added
             callback = false;
-            all.remove();
+            all.dispose();
             data.add([3, 4, 5]);
             assert.isFalse(callback);
           }
@@ -631,7 +631,7 @@ suite.addBatch({
           }
         },
 
-        "remove": {
+        "dispose": {
           "detaches from reduce listeners": function() {
             var data = crossfilter([0, 1, 2]),
                 callback, // indicates a reduce has occurred in this group
@@ -642,7 +642,7 @@ suite.addBatch({
                   .reduce(function() { callback = true; }, function() { callback = true; }, function() {});
             group.all(); // force this group to be reduced when filters change
             callback = false;
-            group.remove();
+            group.dispose();
             other.filterRange([1, 2]);
             assert.isFalse(callback);
           },
@@ -655,20 +655,20 @@ suite.addBatch({
                   .reduce(function() { callback = true; }, function() { callback = true; }, function() {});
             group.all(); // force this group to be reduced when filters change
             callback = false;
-            group.remove();
+            group.dispose();
             data.add([3, 4, 5]);
             assert.isFalse(callback);
           }
         }
       },
 
-      "remove": {
+      "dispose": {
         "detaches from add listeners": function() {
           var data = crossfilter([0, 1, 2]),
               callback, // indicates a reduce has occurred in this group
               dimension = data.dimension(function(d) { callback = true; return d; });
           callback = false;
-          dimension.remove();
+          dimension.dispose();
           data.add([3, 4, 5]);
           assert.isFalse(callback);
         },
@@ -682,7 +682,7 @@ suite.addBatch({
                 .reduce(function() { callback = true; }, function() { callback = true; }, function() {});
           group.all(); // force this group to be reduced when filters change
           callback = false;
-          dimension.remove();
+          dimension.dispose();
           other.filterRange([1, 2]);
           assert.isFalse(callback);
         },
@@ -695,7 +695,7 @@ suite.addBatch({
                 .reduce(function() { callback = true; }, function() { callback = true; }, function() {});
           group.all(); // force this group to be reduced when filters change
           callback = false;
-          dimension.remove();
+          dimension.dispose();
           data.add([3, 4, 5]);
           assert.isFalse(callback);
         }
@@ -743,7 +743,7 @@ suite.addBatch({
         }
       },
 
-      "remove": {
+      "dispose": {
         "detaches from reduce listeners": function() {
           var data = crossfilter([0, 1, 2]),
               callback, // indicates a reduce has occurred in this group
@@ -751,7 +751,7 @@ suite.addBatch({
               all = data.groupAll().reduce(function() { callback = true; }, function() { callback = true; }, function() {});
           all.value(); // force this group to be reduced when filters change
           callback = false;
-          all.remove();
+          all.dispose();
           other.filterRange([1, 2]);
           assert.isFalse(callback);
         },
@@ -761,7 +761,7 @@ suite.addBatch({
               all = data.groupAll().reduce(function() { callback = true; }, function() { callback = true; }, function() {});
           all.value(); // force this group to be reduced when data is added
           callback = false;
-          all.remove();
+          all.dispose();
           data.add([3, 4, 5]);
           assert.isFalse(callback);
         }
@@ -883,6 +883,36 @@ suite.addBatch({
           }));
         }
         assert.deepEqual(foos.top(1), [{key: -998, value: 8977.5}]);
+      }
+    },
+    "remove": {
+      topic: function() {
+        var data = crossfilter();
+        data.foo = data.dimension(function(d) { return d.foo; });
+        data.foo.evenOdd = data.foo.group(function(value) { return Math.floor(value / 2); });
+        return data;
+      },
+      "removing a record updates dimension": function(data) {
+        data.add([{foo: 1}, {foo: 2}]);
+        data.foo.filterExact(1);
+        data.remove();
+        data.foo.filterAll();
+        assert.deepEqual(data.foo.top(Infinity), [{foo: 2}]);
+        data.remove();
+        assert.deepEqual(data.foo.top(Infinity), []);
+      },
+      "removing records updates group": function(data) {
+        data.add([{foo: 1}, {foo: 2}, {foo: 3}]);
+        assert.deepEqual(data.foo.top(Infinity), [{foo: 3}, {foo: 2}, {foo: 1}]);
+        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 1}, {key: 1, value: 2}]);
+        data.foo.filterRange([1, 3]);
+        data.remove();
+        data.foo.filterAll();
+        assert.deepEqual(data.foo.top(Infinity), [{foo: 3}]);
+        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 0}, {key: 1, value: 1}]);
+        data.remove();
+        assert.deepEqual(data.foo.top(Infinity), []);
+        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 0}, {key: 1, value: 0}]);
       }
     }
   }

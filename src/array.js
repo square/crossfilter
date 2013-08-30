@@ -10,6 +10,7 @@ if (typeof Uint8Array !== "undefined") {
   crossfilter_array32 = function(n) { return new Uint32Array(n); };
 
   crossfilter_arrayLengthen = function(array, length) {
+    if (array.length >= length) return array;
     var copy = new array.constructor(length);
     copy.set(array);
     return copy;
