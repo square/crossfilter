@@ -1,5 +1,5 @@
 (function(exports){
-crossfilter.version = "1.2.0";
+crossfilter.version = "1.3.0";
 function crossfilter_identity(d) {
   return d;
 }
@@ -1182,6 +1182,7 @@ function crossfilter() {
       return g;
     }
 
+    // Removes this dimension and associated groups and event listeners.
     function dispose() {
       dimensionGroups.forEach(function(group) { group.dispose(); });
       var i = dataListeners.indexOf(preAdd);
