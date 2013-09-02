@@ -16,6 +16,7 @@ crossfilter.js: \
 	src/zero.js \
 	src/reduce.js \
 	src/crossfilter.js \
+	package.json \
 	Makefile
 
 %.min.js: %.js Makefile

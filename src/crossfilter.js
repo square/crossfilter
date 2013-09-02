@@ -183,9 +183,8 @@ function crossfilter() {
 
     function removeData(reIndex) {
       for (var i = 0, j = 0, k; i < n; ++i) {
-        if (filters[k = index[i]] && i !== j) {
-          values[j] = values[i];
-          index[j] = reIndex[k];
+        if (filters[k = index[i]]) {
+          if (i !== j) values[j] = values[i], index[j] = reIndex[k];
           ++j;
         }
       }

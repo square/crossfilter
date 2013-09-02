@@ -913,6 +913,13 @@ suite.addBatch({
         data.remove();
         assert.deepEqual(data.foo.top(Infinity), []);
         assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 0}, {key: 1, value: 0}]);
+      },
+      "filtering works correctly after removing a record": function(data) {
+        data.add([{foo: 1}, {foo: 2}, {foo: 3}]);
+        data.foo.filter(2);
+        data.remove();
+        data.foo.filter(null);
+        assert.deepEqual(data.foo.top(Infinity), [{foo: 3}, {foo: 1}]);
       }
     }
   }
