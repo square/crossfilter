@@ -493,7 +493,7 @@ function crossfilter() {
       }
 
       function removeData() {
-        for (var i = 0, j = 0; i < n; ++i) {
+        if (groupIndex) for (var i = 0, j = 0; i < n; ++i) {
           if (filters[i]) {
             if (i !== j) groupIndex[j] = groupIndex[i];
             ++j;

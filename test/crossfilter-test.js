@@ -892,6 +892,14 @@ suite.addBatch({
         data.foo.evenOdd = data.foo.group(function(value) { return Math.floor(value / 2); });
         return data;
       },
+      "removing a record works for a group with cardinality one": function(data) {
+        data.add([{foo: 1}, {foo: 1.1}, {foo: 1.2}]);
+        data.foo.filter(1.1);
+        data.remove();
+        data.foo.filterAll();
+        data.remove();
+        assert.deepEqual(data.foo.top(Infinity), []);
+      },
       "removing a record updates dimension": function(data) {
         data.add([{foo: 1}, {foo: 2}]);
         data.foo.filterExact(1);
@@ -918,8 +926,10 @@ suite.addBatch({
         data.add([{foo: 1}, {foo: 2}, {foo: 3}]);
         data.foo.filter(2);
         data.remove();
-        data.foo.filter(null);
+        data.foo.filterAll();
         assert.deepEqual(data.foo.top(Infinity), [{foo: 3}, {foo: 1}]);
+        data.remove();
+        assert.deepEqual(data.foo.top(Infinity), []);
       }
     }
   }
