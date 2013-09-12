@@ -926,10 +926,10 @@ suite.addBatch({
         data.remove();
         data.foo.filterAll();
         assert.deepEqual(data.foo.top(Infinity), [{foo: 3}]);
-        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 0}, {key: 1, value: 1}]);
+        assert.deepEqual(data.foo.evenOdd.all(), [{key: 1, value: 1}]);
         data.remove();
         assert.deepEqual(data.foo.top(Infinity), []);
-        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 0}, {key: 1, value: 0}]);
+        assert.deepEqual(data.foo.evenOdd.all(), []);
       },
       "filtering works correctly after removing a record": function(data) {
         data.add([{foo: 1}, {foo: 2}, {foo: 3}]);

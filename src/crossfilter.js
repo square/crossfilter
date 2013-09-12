@@ -493,11 +493,33 @@ function crossfilter() {
       }
 
       function removeData() {
-        if (groupIndex) for (var i = 0, j = 0; i < n; ++i) {
-          if (filters[i]) {
-            if (i !== j) groupIndex[j] = groupIndex[i];
-            ++j;
+        if (groupIndex) {
+          var oldK = k,
+              oldGroups = groups,
+              seenGroups = crossfilter_index(oldK, oldK);
+
+          // Filter out non-matches by copying matching group index entries to
+          // the beginning of the array.
+          for (var i = 0, j = 0; i < n; ++i) {
+            if (filters[i]) {
+              seenGroups[groupIndex[j] = groupIndex[i]] = 1;
+              ++j;
+            }
           }
+
+          // Reassemble groups including only those groups that were referred
+          // to by matching group index entries.  Note the new group index in
+          // seenGroups.
+          groups = [], k = 0;
+          for (i = 0; i < oldK; ++i) {
+            if (seenGroups[i]) {
+              seenGroups[i] = k++;
+              groups.push(oldGroups[i]);
+            }
+          }
+
+          // Reindex the group index using seenGroups to find the new index.
+          for (var i = 0; i < j; ++i) groupIndex[i] = seenGroups[groupIndex[i]];
         }
       }
 
