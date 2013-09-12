@@ -551,6 +551,28 @@ suite.addBatch({
           assert.equal(indexes.size(), 65537);
         },
 
+        "adds all records before removing filtered": function(data) {
+          try {
+            data.quantity.filter(1);
+            // Group only adds
+            var addGroup = data.type.group().reduce(
+                function(p, v) {
+                  ++p;
+                  return p;
+                }, function(p, v) {
+                  return p;
+                }, function() {
+                  return 0;
+                }
+              );
+            // Normal group
+            var stdGroup = data.type.group();
+            assert.isTrue(addGroup.top(1)[0].value > stdGroup.top(1)[0].value);
+          } finally {
+            data.quantity.filterAll();
+          }
+        },
+
         "size": {
           "returns the cardinality": function(data) {
             assert.equal(data.date.hours.size(), 8);
