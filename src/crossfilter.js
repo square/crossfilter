@@ -296,7 +296,7 @@ function crossfilter() {
           removed = [];
 
       for (i = 0; i < n; ++i) {
-        if (!(filters[k = index[i]] & one) ^ (x = f(values[i], k))) {
+        if (!(filters[k = index[i]] & one) ^ (x = f(values[i], i))) {
           if (x) filters[k] &= zero, added.push(k);
           else filters[k] |= one, removed.push(k);
         }
