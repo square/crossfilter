@@ -119,10 +119,10 @@ function crossfilter() {
       newValues = permute(newValues, newIndex);
 
       // Bisect newValues to determine which new records are selected.
-      var bounds = refilter(newValues), lo1 = bounds[0], hi1 = bounds[1], i, k;
+      var bounds = refilter(newValues), lo1 = bounds[0], hi1 = bounds[1], i;
       if (refilterFunction) {
         for (i = 0; i < n1; ++i) {
-          if (!refilterFunction(newValues[i], k = newIndex[i] + n0)) filters[k] |= one;
+          if (!refilterFunction(newValues[i], i)) filters[newIndex[i] + n0] |= one;
         }
       } else {
         for (i = 0; i < lo1; ++i) filters[newIndex[i] + n0] |= one;
@@ -296,7 +296,7 @@ function crossfilter() {
           removed = [];
 
       for (i = 0; i < n; ++i) {
-        if (!(filters[k = index[i]] & one) ^ (x = f(values[i], k))) {
+        if (!(filters[k = index[i]] & one) ^ (x = f(values[i], i))) {
           if (x) filters[k] &= zero, added.push(k);
           else filters[k] |= one, removed.push(k);
         }

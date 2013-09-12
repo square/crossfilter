@@ -328,6 +328,15 @@ suite.addBatch({
           } finally {
             data.total.filterAll();
           }
+        },
+        "followed by filterRange": function(data) {
+          try {
+            data.total.filterFunction(function(d) { return d % 2; });
+            data.total.filterRange([100, 200]);
+            assert.deepEqual(data.date.top(Infinity).length, 19);
+          } finally {
+            data.total.filterAll();
+          }
         }
       },
 
