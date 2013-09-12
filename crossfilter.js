@@ -1025,11 +1025,13 @@ function crossfilter() {
         // can build an 'unfiltered' view even if there are already filters in
         // place on other dimensions.
         for (i = 0; i < n; ++i) {
+          g = groups[groupIndex[i]];
           g.value = reduceAdd(g.value, data[i]);
         }
 
         for (i = 0; i < n; ++i) {
           if ((filters[i] & zero)) {
+            g = groups[groupIndex[i]];
             g.value = reduceRemove(g.value, data[i]);
           }
         }
