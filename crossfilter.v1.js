@@ -1,5 +1,5 @@
 (function(exports){
-crossfilter.version = "1.3.4";
+crossfilter.version = "1.3.5";
 function crossfilter_identity(d) {
   return d;
 }
@@ -699,7 +699,8 @@ function crossfilter() {
     function removeData(reIndex) {
       for (var i = 0, j = 0, k; i < n; ++i) {
         if (filters[k = index[i]]) {
-          if (i !== j) values[j] = values[i], index[j] = reIndex[k];
+          if (i !== j) values[j] = values[i];
+          index[j] = reIndex[k];
           ++j;
         }
       }
@@ -1008,7 +1009,7 @@ function crossfilter() {
       }
 
       function removeData() {
-        if (groupIndex) {
+        if (k > 1) {
           var oldK = k,
               oldGroups = groups,
               seenGroups = crossfilter_index(oldK, oldK);
@@ -1033,8 +1034,21 @@ function crossfilter() {
             }
           }
 
-          // Reindex the group index using seenGroups to find the new index.
-          for (var i = 0; i < j; ++i) groupIndex[i] = seenGroups[groupIndex[i]];
+          if (k > 1) {
+            // Reindex the group index using seenGroups to find the new index.
+            for (var i = 0; i < j; ++i) groupIndex[i] = seenGroups[groupIndex[i]];
+          } else {
+            groupIndex = null;
+          }
+          filterListeners[filterListeners.indexOf(update)] = k > 1
+              ? (reset = resetMany, update = updateMany)
+              : k === 1 ? (reset = resetOne, update = updateOne)
+              : reset = update = crossfilter_null;
+        } else if (k === 1) {
+          for (var i = 0; i < n; ++i) if (filters[i]) return;
+          groups = [], k = 0;
+          filterListeners[filterListeners.indexOf(update)] =
+          update = reset = crossfilter_null;
         }
       }
 
