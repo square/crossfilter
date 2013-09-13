@@ -898,7 +898,8 @@ suite.addBatch({
       topic: function() {
         var data = crossfilter();
         data.foo = data.dimension(function(d) { return d.foo; });
-        data.foo.evenOdd = data.foo.group(function(value) { return Math.floor(value / 2); });
+        data.foo.div2 = data.foo.group(function(value) { return Math.floor(value / 2); });
+        data.foo.positive = data.foo.group(function(value) { return value > 0 | 0; });
         return data;
       },
       "removing a record works for a group with cardinality one": function(data) {
@@ -906,6 +907,17 @@ suite.addBatch({
         data.foo.filter(1.1);
         data.remove();
         data.foo.filterAll();
+        data.remove();
+        assert.deepEqual(data.foo.top(Infinity), []);
+      },
+      "removing a record works for another group with cardinality one": function(data) {
+        data.add([{foo: 0}, {foo: -1}]);
+        assert.deepEqual(data.foo.positive.all(), [{key: 0, value: 2}]);
+        data.foo.filter(0);
+        data.remove();
+        assert.deepEqual(data.foo.positive.all(), [{key: 0, value: 1}]);
+        data.foo.filterAll();
+        assert.deepEqual(data.foo.top(Infinity), [{foo: -1}]);
         data.remove();
         assert.deepEqual(data.foo.top(Infinity), []);
       },
@@ -921,15 +933,15 @@ suite.addBatch({
       "removing records updates group": function(data) {
         data.add([{foo: 1}, {foo: 2}, {foo: 3}]);
         assert.deepEqual(data.foo.top(Infinity), [{foo: 3}, {foo: 2}, {foo: 1}]);
-        assert.deepEqual(data.foo.evenOdd.all(), [{key: 0, value: 1}, {key: 1, value: 2}]);
+        assert.deepEqual(data.foo.div2.all(), [{key: 0, value: 1}, {key: 1, value: 2}]);
         data.foo.filterRange([1, 3]);
         data.remove();
         data.foo.filterAll();
         assert.deepEqual(data.foo.top(Infinity), [{foo: 3}]);
-        assert.deepEqual(data.foo.evenOdd.all(), [{key: 1, value: 1}]);
+        assert.deepEqual(data.foo.div2.all(), [{key: 1, value: 1}]);
         data.remove();
         assert.deepEqual(data.foo.top(Infinity), []);
-        assert.deepEqual(data.foo.evenOdd.all(), []);
+        assert.deepEqual(data.foo.div2.all(), []);
       },
       "filtering works correctly after removing a record": function(data) {
         data.add([{foo: 1}, {foo: 2}, {foo: 3}]);
