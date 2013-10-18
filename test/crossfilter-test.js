@@ -713,38 +713,38 @@ suite.addBatch({
 
     "groupAll": {
       topic: function(data) {
-        data.all = data.groupAll().reduceSum(function(d) { return d.total; });
+        data.allGroup = data.groupAll().reduceSum(function(d) { return d.total; });
         return data;
       },
 
       "does not have top and order methods": function(data) {
-        assert.isFalse("top" in data.all);
-        assert.isFalse("order" in data.all);
+        assert.isFalse("top" in data.allGroup);
+        assert.isFalse("order" in data.allGroup);
       },
 
       "reduce": {
         "determines the computed reduce value": function(data) {
           try {
-            data.all.reduceCount();
-            assert.strictEqual(data.all.value(), 43);
+            data.allGroup.reduceCount();
+            assert.strictEqual(data.allGroup.value(), 43);
           } finally {
-            data.all.reduceSum(function(d) { return d.total; });
+            data.allGroup.reduceSum(function(d) { return d.total; });
           }
         }
       },
 
       "value": {
         "returns the sum total of matching records": function(data) {
-          assert.strictEqual(data.all.value(), 6660);
+          assert.strictEqual(data.allGroup.value(), 6660);
         },
         "observes all dimension's filters": function(data) {
           try {
             data.type.filterExact("tab");
-            assert.strictEqual(data.all.value(), 4760);
+            assert.strictEqual(data.allGroup.value(), 4760);
             data.type.filterExact("visa");
-            assert.strictEqual(data.all.value(), 1400);
+            assert.strictEqual(data.allGroup.value(), 1400);
             data.tip.filterExact(100);
-            assert.strictEqual(data.all.value(), 1000);
+            assert.strictEqual(data.allGroup.value(), 1000);
           } finally {
             data.type.filterAll();
             data.tip.filterAll();
@@ -773,6 +773,21 @@ suite.addBatch({
           all.dispose();
           data.add([3, 4, 5]);
           assert.isFalse(callback);
+        }
+      }
+    },
+
+    "all": {
+      "testing": function(data) {
+        try {
+          data.type.filterExact("tab");
+          var allRowsInFilter = data.all();
+          assert.equal(allRowsInFilter.length, 32);
+          assert.deepEqual(allRowsInFilter[0],
+            {date: '2011-11-14T16:17:54Z', quantity: 2, total: 190, tip: 100, type: 'tab'});
+        }
+        finally {
+          data.type.filterAll();
         }
       }
     },

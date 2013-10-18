@@ -6,6 +6,7 @@ function crossfilter() {
     remove: removeData,
     dimension: dimension,
     groupAll: groupAll,
+    all: all,
     size: size
   };
 
@@ -832,6 +833,16 @@ function crossfilter() {
     }
 
     return reduceCount();
+  }
+
+  function all() {
+    var allData = [];
+      for (var i = 0; i < n; ++i) {
+        if (!filters[i]) {
+          allData.push(data[i]);
+        }
+      }
+    return allData;
   }
 
   // Returns the number of records in this crossfilter, irrespective of any filters.
