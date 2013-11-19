@@ -28,7 +28,7 @@ crossfilter.js: \
 	@echo '(function(exports){' > $@
 	@echo 'crossfilter.version = "'$(shell node -p 'require("./package.json").version')'";' >> $@
 	cat $(filter %.js,$^) >> $@
-	@echo '})(this);' >> $@
+	@echo '})(typeof exports !== '\'undefined\'' && exports || this);' >> $@
 	@chmod a-w $@
 
 clean:
