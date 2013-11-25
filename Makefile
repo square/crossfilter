@@ -1,12 +1,8 @@
-JS_TESTER = ./node_modules/vows/bin/vows
-JS_UGLIFY = ./node_modules/uglify-js/bin/uglifyjs
-
 .PHONY: test benchmark
 
-all: crossfilter.min.js package.json
+all: crossfilter.min.js
 
 crossfilter.js: \
-	src/version.js \
 	src/identity.js \
 	src/permute.js \
 	src/bisect.js \
@@ -20,29 +16,26 @@ crossfilter.js: \
 	src/zero.js \
 	src/reduce.js \
 	src/crossfilter.js \
+	package.json \
 	Makefile
 
 %.min.js: %.js Makefile
 	@rm -f $@
-	$(JS_UGLIFY) $< -c -m -o $@
+	node_modules/.bin/uglifyjs $< -c unsafe=true -m -o $@
 
 %.js:
 	@rm -f $@
 	@echo '(function(exports){' > $@
+	@echo 'crossfilter.version = "'$(shell node -p 'require("./package.json").version')'";' >> $@
 	cat $(filter %.js,$^) >> $@
 	@echo '})(this);' >> $@
 	@chmod a-w $@
 
-package.json: crossfilter.js src/package.js
-	@rm -f $@
-	node src/package.js > $@
-	@chmod a-w $@
-
 clean:
-	rm -f crossfilter.js crossfilter.min.js package.json
+	rm -f crossfilter.js crossfilter.min.js
 
 test: all
-	@$(JS_TESTER)
+	@npm test
 
 benchmark: all
 	@node test/benchmark.js
