@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Crossfilter</title>
+<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" media="all" />
 <style>
 
 @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400,700);
 
 body {
   font-family: "Helvetica Neue";
-  margin: 40px auto;
-  width: 960px;
+  margin: 10px;
   min-height: 2000px;
 }
 
@@ -24,7 +24,7 @@ footer {
 h1 {
   font-size: 96px;
   margin-top: .3em;
-  margin-bottom: 0;
+  margin-bottom: .3em;
 }
 
 h1 + h2 {
@@ -152,44 +152,49 @@ aside {
 
 </style>
 
-<div id="body">
+<div id="body" class="content-fluid">
 
-<a href="https://github.com/square"><img src="logotype.png" width="122" height="31"></a>
+<div class="row-fluid">
+	<div class="span4">
+		<a href="https://github.com/square"><img src="logotype.png" width="122" height="31"></a>
 
-<h1>Crossfilter</h1>
+		<h1>Crossfilter</h1>
 
-<h2>Fast Multidimensional Filtering for Coordinated Views</h2>
+		<h2>Fast Multidimensional Filtering for Coordinated Views</h2>
 
-<p><b>Crossfilter</b> is a <a href="https://github.com/square/crossfilter">JavaScript library</a> for exploring large multivariate datasets in the browser. Crossfilter supports extremely fast (&lt;30ms) interaction with coordinated views, even with datasets containing a million or more records; we built it to power analytics for <a href="https://squareup.com/register">Square Register</a>, allowing merchants to slice and dice their payment history fluidly.
+		<p><b>Crossfilter</b> is a <a href="https://github.com/square/crossfilter">JavaScript library</a> for exploring large multivariate datasets in the browser. Crossfilter supports extremely fast (&lt;30ms) interaction with coordinated views, even with datasets containing a million or more records; we built it to power analytics for <a href="https://squareup.com/register">Square Register</a>, allowing merchants to slice and dice their payment history fluidly.
 
-<p>Since most interactions only involve a single dimension, and then only small adjustments are made to the filter values, incremental filtering and reducing is significantly faster than starting from scratch. Crossfilter uses sorted indexes (and a few bit-twiddling hacks) to make this possible, dramatically increasing the perfor&shy;mance of live histograms and top-<i>K</i> lists. For more details on how Crossfilter works, see the <a href="https://github.com/square/crossfilter/wiki/API-Reference">API reference</a>.
+		<p>Since most interactions only involve a single dimension, and then only small adjustments are made to the filter values, incremental filtering and reducing is significantly faster than starting from scratch. Crossfilter uses sorted indexes (and a few bit-twiddling hacks) to make this possible, dramatically increasing the perfor&shy;mance of live histograms and top-<i>K</i> lists. For more details on how Crossfilter works, see the <a href="https://github.com/square/crossfilter/wiki/API-Reference">API reference</a>.
 
-<h2>Example: Airline on-time performance</h2>
+		<h2>Example: Airline on-time performance</h2>
 
-<p>The coordinated visualizations below (built with <a href="http://mbostock.github.com/d3/">D3</a>) show nearly a quarter-million flights from early 2001: part of the <a href="http://stat-computing.org/dataexpo/2009/">ASA Data Expo</a> dataset. The dataset is 5.3MB, so it might take a few seconds to download. Click and drag on any chart to filter by the associated dimension. The table beneath shows the eighty most recent flights that match the current filters; these are the <i>details on demand</i>, anecdotal evidence you can use to weigh different hypotheses.
+		<p>The coordinated visualizations below (built with <a href="http://mbostock.github.com/d3/">D3</a>) show nearly a quarter-million flights from early 2001: part of the <a href="http://stat-computing.org/dataexpo/2009/">ASA Data Expo</a> dataset. The dataset is 5.3MB, so it might take a few seconds to download. Click and drag on any chart to filter by the associated dimension. The table beneath shows the eighty most recent flights that match the current filters; these are the <i>details on demand</i>, anecdotal evidence you can use to weigh different hypotheses.
 
-<p>Some questions to consider: How does time-of-day correlate with <a href="javascript:filter([null, [100, 150], null, null])">arrival delay</a>? Are <a href="javascript:filter([null, null, [1700, 2000], null])">longer</a> or <a href="javascript:filter([null, null, [0, 300], null])">shorter</a> flights more likely to arrive early? What happened on <a href="javascript:filter([null, [80, 150], null, [new Date(2001, 0, 12), new Date(2001, 0, 13)]])">January 12</a>? How do flight patterns differ between <a href="javascript:filter([null, null, null, [new Date(2001, 0, 27), new Date(2001, 0, 29)]])">weekends</a> and <a href="javascript:filter([null, null, null, [new Date(2001, 0, 29), new Date(2001, 1, 3)]])">weekdays</a>, or <a href="javascript:filter([[4, 7], null, null, null])">mornings</a> and <a href="javascript:filter([[21, 24], null, null, null])">nights</a>? <a href="https://github.com/square/crossfilter/tree/gh-pages">Fork this example</a> and try your own data!
+		<p>Some questions to consider: How does time-of-day correlate with <a class="btn btn-info" href="javascript:filter([null, [100, 150], null, null])">arrival delay</a>? Are <a class="btn btn-info" href="javascript:filter([null, null, [1700, 2000], null])">longer</a> or <a class="btn btn-info" href="javascript:filter([null, null, [0, 300], null])">shorter</a> flights more likely to arrive early? What happened on <a class="btn btn-info" href="javascript:filter([null, [80, 150], null, [new Date(2001, 0, 12), new Date(2001, 0, 13)]])">January 12</a>? How do flight patterns differ between <a class="btn btn-info" href="javascript:filter([null, null, null, [new Date(2001, 0, 27), new Date(2001, 0, 29)]])">weekends</a> and <a class="btn btn-info" href="javascript:filter([null, null, null, [new Date(2001, 0, 29), new Date(2001, 1, 3)]])">weekdays</a>, or <a class="btn btn-info" href="javascript:filter([[4, 7], null, null, null])">mornings</a> and <a class="btn btn-info" href="javascript:filter([[21, 24], null, null, null])">nights</a>?</p>
+		<p><a href="https://github.com/square/crossfilter/tree/gh-pages">Fork this example</a> and try your own data!</p>
+	</div>
+	<div class="span8">
+		<div id="charts">
+		  <div id="hour-chart" class="chart">
+		    <div class="title">Time of Day</div>
+		  </div>
+		  <div id="delay-chart" class="chart">
+		    <div class="title">Arrival Delay (min.)</div>
+		  </div>
+		  <div id="distance-chart" class="chart">
+		    <div class="title">Distance (mi.)</div>
+		  </div>
+		  <div id="date-chart" class="chart">
+		    <div class="title">Date</div>
+		  </div>
+		</div>
 
-<div id="charts">
-  <div id="hour-chart" class="chart">
-    <div class="title">Time of Day</div>
-  </div>
-  <div id="delay-chart" class="chart">
-    <div class="title">Arrival Delay (min.)</div>
-  </div>
-  <div id="distance-chart" class="chart">
-    <div class="title">Distance (mi.)</div>
-  </div>
-  <div id="date-chart" class="chart">
-    <div class="title">Date</div>
-  </div>
-</div>
+		<aside id="totals"><span id="active">-</span> of <span id="total">-</span> flights selected.</aside>
 
-<aside id="totals"><span id="active">-</span> of <span id="total">-</span> flights selected.</aside>
-
-<div id="lists">
-  <div id="flight-list" class="list"></div>
-</div>
+		<div id="lists">
+		  <div id="flight-list" class="list"></div>
+		</div>
+	</div>
 
 <footer>
   <span style="float:right;">
