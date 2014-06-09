@@ -4,8 +4,9 @@
   "description": "Fast n-dimensional filtering and grouping of records.",
   "version": "1.3.6",
   "keywords": [],
-  "main": "crossfilter.js",
+  "main": "index.js",
   "scripts": [
+    "index.js",
     "crossfilter.js"
   ],
   "dependencies": {},
