@@ -329,6 +329,18 @@ suite.addBatch({
             data.total.filterAll();
           }
         },
+        "respects truthy values": function(data) {
+          try {
+            var group = data.quantity.groupAll().reduceCount();
+            data.total.filterRange([200, Infinity]);
+            data.total.filterFunction(function(d) { return "0"; });
+            assert.deepEqual(group.value(), 43);
+            data.total.filterFunction(function(d) { return ""; });
+            assert.deepEqual(group.value(), 0);
+          } finally {
+            data.total.filterAll();
+          }
+        },
         "followed by filterRange": function(data) {
           try {
             data.total.filterFunction(function(d) { return d % 2; });
