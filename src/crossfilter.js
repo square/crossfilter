@@ -351,6 +351,10 @@ function crossfilter() {
         order: order,
         orderNatural: orderNatural,
         size: size,
+        groups: _groups,
+        groupIndex: _groupIndex,
+        zero: zero,
+        cross: cross,
         dispose: dispose,
         remove: dispose // for backwards-compatibility
       };
@@ -624,6 +628,63 @@ function crossfilter() {
             g.value = reduceAdd(g.value, data[i]);
           }
         }
+      }
+
+      // Gets the list of groups for this group, used to expose the local variable for the cross() operation
+      function _groups() {
+        return groups;
+      }
+
+      // Gets the group indices for this group, used to expose the local variable for the cross() operation
+      function _groupIndex() {
+        return groupIndex;
+      }
+
+      // Cross this group with another group.  This operation return an array of length N*M if N is the
+      // cardinality of this group and M is the cardinality of the other.  Each returned value will be
+      // an object with the "key" property set to this group's key, the "cross" property set to the other
+      // group's key, and "value" set to the reduced value for the matching records.  The reduction uses
+      // this group's reduce functions, so this.cross(that) can give different values from that.cross(this).
+      //
+      // By default filters on either dimension are ignored unless the optional "honorFilters" parameter
+      // is set to true.
+      function cross(other, honorFilters) {
+        var i, j, g, m,
+            ok = other.size(),
+            otherGroups = other.groups(),
+            otherGroupIndex = other.groupIndex(),
+            key,
+            crossed = [];
+
+        for (i = m = 0; i < k; ++i) {
+          key = groups[i].key;
+          for (j = 0; j < ok; ++j) {
+            crossed[m+j] = { key: key, cross: otherGroups[j].key, value : reduceInitial() };
+          }
+          m += ok;
+        }
+
+        if (honorFilters) {
+          // If honor filters is set, then we respect the filters on this and the other group's dimension
+          for (i = 0; i < n; ++i) {
+            if (!(filters[i])) {
+              g = crossed[groupIndex[i]*ok+otherGroupIndex[i]];
+              g.value = reduceAdd(g.value, data[i]);
+            }
+          }
+        }
+        else {
+          // By default we ignore the filters on this and the other group's dimension
+          m = zero & other.zero;
+          for (i = 0; i < n; ++i) {
+            if (!(filters[i] & m)) {
+              g = crossed[groupIndex[i]*ok+otherGroupIndex[i]];
+              g.value = reduceAdd(g.value, data[i]);
+            }
+          }
+        }
+
+        return crossed;
       }
 
       // Returns the array of group values, in the dimension's natural order.

@@ -546,6 +546,62 @@ suite.addBatch({
           return data;
         },
 
+        "cross": {
+          topic: function(data) {
+            data.cross = data.type.types.cross(data.date.hours);
+            data.type.filterExact(data.honorCrossFilter = 'visa');
+            data.honorCross = data.type.types.cross(data.date.hours, true);
+            data.type.filterAll();
+            return data;
+          },
+
+          "cross size is right": function(data) {
+            var l = data.cross.length;
+            //data.cross.forEach(function(cross) { l += cross.length; });
+            assert.equal(l, data.date.hours.size() * data.type.types.size());
+            //console.log("Cross:", data.cross);
+          },
+
+          "crossing is same as filtering one-by-one" : function(data) {
+            data.type.types.all().forEach(function(type, t) {
+              data.type.filterExact(type.key);
+              //var i, crossed = data.cross[t], grouped = data.date.hours.all();
+              var i, crossed = data.cross.filter(function(g) { return g.key == type.key; }),
+                  grouped = data.date.hours.all();
+              assert.equal(crossed.length, grouped.length);
+              for (i = 0; i < crossed.length; i++) {
+                assert.equal(crossed[i].cross, grouped[i].key);
+                assert.equal(crossed[i].value, grouped[i].value);
+              }
+            });
+            data.type.filterAll();
+          },
+
+          "crossing while honoring is same as filtering the other one-by-one" : function(data) {
+            data.type.filterExact(data.honorCrossFilter);
+            var grouped = data.date.hours.all();
+            data.type.types.all().forEach(function(type, t) {
+              var i, crossed = data.honorCross.filter(function(g) { return g.key == type.key; });
+              if (type.key === data.honorCrossFilter) {
+                assert.equal(crossed.length, grouped.length);
+                for (i = 0; i < crossed.length; i++) {
+                  assert.equal(crossed[i].cross, grouped[i].key);
+                  assert.equal(crossed[i].value, grouped[i].value); //, "Failed on cross: " + crossed[i].key + " x " + crossed[i].cross);
+                }
+              }
+              else {
+                assert.equal(crossed.length, grouped.length);
+                for (i = 0; i < crossed.length; i++) {
+                  assert.equal(crossed[i].cross, grouped[i].key);
+                  assert.equal(crossed[i].value, 0); //, "Failed on cross: " + crossed[i].key + " x " + crossed[i].cross);
+                }
+              }
+            });
+            data.type.filterAll();
+          }
+
+        },
+
         "key defaults to value": function(data) {
           assert.deepEqual(data.type.types.top(Infinity), [
             {key: "tab", value: 32},
