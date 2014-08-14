@@ -370,7 +370,8 @@ function crossfilter() {
           reduceInitial,
           update = crossfilter_null,
           reset = crossfilter_null,
-          resetNeeded = true;
+          resetNeeded = true,
+          groupAll = key === crossfilter_null;
 
       if (arguments.length < 1) key = crossfilter_identity;
 
@@ -471,6 +472,10 @@ function crossfilter() {
           update = updateMany;
           reset = resetMany;
         } else {
+          if (!k && groupAll) {
+            k = 1;
+            groups = [{key: null, value: initial()}];
+          }
           if (k === 1) {
             update = updateOne;
             reset = resetOne;
@@ -530,6 +535,7 @@ function crossfilter() {
               : k === 1 ? (reset = resetOne, update = updateOne)
               : reset = update = crossfilter_null;
         } else if (k === 1) {
+          if (groupAll) return;
           for (var i = 0; i < n; ++i) if (filters[i]) return;
           groups = [], k = 0;
           filterListeners[filterListeners.indexOf(update)] =
