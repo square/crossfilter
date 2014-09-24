@@ -717,9 +717,8 @@ function crossfilter() {
       if (i >= 0) dataListeners.splice(i, 1);
       i = removeDataListeners.indexOf(removeData);
       if (i >= 0) removeDataListeners.splice(i, 1);
-      for (i = 0; i < n; ++i) filters[i] &= zero;
       m &= zero;
-      return dimension;
+      return filterAll();
     }
 
     return dimension;
