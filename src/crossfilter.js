@@ -710,6 +710,7 @@ function crossfilter() {
 
     // Removes this dimension and associated groups and event listeners.
     function dispose() {
+      filterAll();
       dimensionGroups.forEach(function(group) { group.dispose(); });
       var i = dataListeners.indexOf(preAdd);
       if (i >= 0) dataListeners.splice(i, 1);
