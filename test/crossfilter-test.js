@@ -428,9 +428,20 @@ suite.addBatch({
             var group = data.quantity.groupAll().reduceCount();
             data.total.filterRange([200, Infinity]);
             data.total.filterFunction(function(d) { return "0"; });
-            assert.deepEqual(group.value(), 43);
+            assert.equal(group.value(), 43);
             data.total.filterFunction(function(d) { return ""; });
-            assert.deepEqual(group.value(), 0);
+            assert.equal(group.value(), 0);
+          } finally {
+            data.total.filterAll();
+          }
+        },
+        "groups on the first dimension are updated correctly": function(data) {
+          try {
+            var group = data.date.groupAll().reduceCount();
+            data.total.filterFunction(function(d) { return d === 90; });
+            assert.equal(group.value(), 13);
+            data.total.filterFunction(function(d) { return d === 91; });
+            assert.equal(group.value(), 1);
           } finally {
             data.total.filterAll();
           }
