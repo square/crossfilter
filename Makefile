@@ -21,7 +21,7 @@ crossfilter.js: \
 
 %.min.js: %.js Makefile
 	@rm -f $@
-	uglifyjs $< -c unsafe=true -m -o $@
+	uglifyjs $< -c unsafe=true -m -o $@	
 
 %.js:
 	@rm -f $@
