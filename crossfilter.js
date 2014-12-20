@@ -1193,7 +1193,6 @@ function crossfilter() {
       function pivotReduceCount(keys){
         reduceAdd = function(p,v){
           var values = build_group_values(keys, v);
-          console.log(p);
           if(reduce_hash[values] > 0){
             ++reduce_hash[values];
           }
