@@ -1194,7 +1194,7 @@ function crossfilter() {
         reduceAdd = function(p,v){
           var values = build_group_values(keys, v);
           if(reduce_hash[values] > 0){
-            ++reduce_hash[values];
+            reduce_hash[values] = reduce_hash[values] + 1;
           }
           else{
             reduce_hash[values] = 1;
@@ -1206,12 +1206,15 @@ function crossfilter() {
         reduceRemove = function reduceRemove(p,v){ 
           var values = build_group_values(keys,  v);
           if(reduce_hash[values] > 0){
-            --reduce_hash[values];
+            reduce_hash[values] = reduce_hash[values] -1;
             if(reduce_hash[values] < 1){
-              if(p.count > 0){
+              if(p > 0){
                 p =  p - 1;
               }
             }
+          }
+          else{
+            reduce_hash[values] = -1;
           }
           return p;
         };
