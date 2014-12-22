@@ -774,7 +774,6 @@ function crossfilter() {
       reduce: reduce,
       reduceCount: reduceCount,
       reduceSum: reduceSum,
-      pivotReduceCount: pivotReduceCount,
       value: value,
       dispose: dispose,
       remove: dispose // for backwards-compatibility
