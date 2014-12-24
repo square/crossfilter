@@ -16,6 +16,7 @@ crossfilter.js: \
 	src/zero.js \
 	src/reduce.js \
 	src/crossfilter.js \
+	src/footer.js \
 	package.json \
 	Makefile
 
@@ -25,10 +26,9 @@ crossfilter.js: \
 
 %.js:
 	@rm -f $@
-	@echo '(function(exports){' > $@
+	@echo '(function() {function _crossfilter(){' > $@
 	@echo 'crossfilter.version = "'$(shell node -p 'require("./package.json").version')'";' >> $@
 	cat $(filter %.js,$^) >> $@
-	@echo '})(typeof exports !== '\'undefined\'' && exports || this);' >> $@
 	@chmod a-w $@
 
 clean:
