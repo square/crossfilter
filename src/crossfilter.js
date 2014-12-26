@@ -1,4 +1,3 @@
-exports.crossfilter = crossfilter;
 
 function crossfilter() {
   var crossfilter = {
@@ -870,3 +869,5 @@ function crossfilter_capacity(w) {
       ? 0x10000
       : 0x100000000;
 }
+
+return crossfilter;

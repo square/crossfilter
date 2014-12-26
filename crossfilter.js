@@ -1,4 +1,4 @@
-(function(exports){
+(function() {function _crossfilter(){
 crossfilter.version = "1.3.11";
 function crossfilter_identity(d) {
   return d;
@@ -526,7 +526,6 @@ function crossfilter_reduceSubtract(f) {
     return p - f(v);
   };
 }
-exports.crossfilter = crossfilter;
 
 function crossfilter() {
   var crossfilter = {
@@ -1398,4 +1397,11 @@ function crossfilter_capacity(w) {
       ? 0x10000
       : 0x100000000;
 }
-})(typeof exports !== 'undefined' && exports || this);
+return crossfilter;
+}
+if(typeof define === "function" && define.amd) {
+    define(_crossfilter);
+}else{
+	window.crossfilter=_crossfilter;
+}
+})();
