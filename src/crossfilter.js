@@ -696,7 +696,7 @@ function crossfilter() {
         return group;
       }
     //Reduce using pivot identifier
-      function pivotReduceCount(keys, add, remove, init){
+      function pivotReduce(keys, add, remove, init){
         reduceAdd = function(p,v){
           var values = build_group_values(keys, v);
           if(reduce_hash[values] > 0){
