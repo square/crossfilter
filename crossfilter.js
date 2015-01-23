@@ -1223,11 +1223,51 @@ function crossfilter() {
         };
         return group;
       }
+    //Reduce using pivot identifier
+      function pivotReduceCount(keys, add, remove, init){
+        reduceAdd = function(p,v){
+          var values = build_group_values(keys, v);
+          if(reduce_hash[values] > 0){
+            reduce_hash[values] = reduce_hash[values] + 1;
+          }
+          else{
+            reduce_hash[values] = 1;
+            add(p,v);
+          }
+          return p;
+
+        };
+        reduceRemove = function reduceRemove(p,v){ 
+          var values = build_group_values(keys,  v);
+          if(reduce_hash[values] > 0){
+            reduce_hash[values] = reduce_hash[values] -1;
+            if(reduce_hash[values] < 1){
+              if(p > 0){
+                remove(p,v);
+              }
+            }
+          }
+          else{
+            reduce_hash[values] = -1;
+          }
+          return p;
+        };
+        reduceInitial = function(){
+          return init;
+        };
+        return group;
+      }
 
       function build_group_values(group_keys, v){
         var values = []
         for(var j = 0; j < group_keys.length; j++){
-          values.push(v[group_keys[j]]); 
+        if(group_keys[j] in v){
+           values.push(v[group_keys[j]]); 
+          }
+         else{
+          values.push(group_keys[j]);
+
+           }
         }
         return values;
       }
