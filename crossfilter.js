@@ -545,6 +545,7 @@ function crossfilter() {
       filterListeners = [], // when the filters change
       dataListeners = [], // when data is added
       removeDataListeners = [], // when data is removed
+      reduce_hash_count = 0,
       reduce_hash = {}; // hash for pivot reduce
 
   // Adds the specified new records to this crossfilter.
@@ -1190,8 +1191,10 @@ function crossfilter() {
       }
       //Reduce count using pivot identifier
       function pivotReduceCount(keys){
-        reduceAdd = function(p,v){
-          var values = build_group_values(keys, v);
+        var reduce_id = reduce_hash_count;
+        reduce_hash_count++;
+        reduceAdd = function add(p,v){
+          var values = build_group_values(reduce_id, keys, v);
           if(reduce_hash[values] > 0){
             reduce_hash[values] = reduce_hash[values] + 1;
           }
@@ -1201,8 +1204,8 @@ function crossfilter() {
           }
           return p;
         };
-        reduceRemove = function reduceRemove(p,v){ 
-          var values = build_group_values(keys,  v);
+        reduceRemove = function remove(p,v){ 
+          var values = build_group_values(reduce_id, keys,  v);
           if(reduce_hash[values] > 0){
             reduce_hash[values] = reduce_hash[values] -1;
             if(reduce_hash[values] < 1){
@@ -1223,25 +1226,26 @@ function crossfilter() {
       }
     //Reduce using pivot identifier
       function pivotReduce(keys, add, remove, init){
-        reduceAdd = function(p,v){
-          var values = build_group_values(keys, v);
+        var reduce_id = reduce_hash_count;
+        reduce_hash_count++;
+        r_add = function reduceAdd(p,v){
+          var values = build_group_values(reduce_id, keys, v);
+          values
           if(reduce_hash[values] > 0){
             reduce_hash[values] = reduce_hash[values] + 1;
           }
           else{
             reduce_hash[values] = 1;
-            p = add(p,v);
+            return add(p,v);
           }
           return p;
         };
-        reduceRemove = function reduceRemove(p,v){ 
-          var values = build_group_values(keys,  v);
+        r_remove = function reduceRemove(p,v){ 
+          var values = build_group_values(reduce_id, keys,  v);
           if(reduce_hash[values] > 0){
             reduce_hash[values] = reduce_hash[values] -1;
             if(reduce_hash[values] < 1){
-              if(p > 0){
-               p =  remove(p,v);
-              }
+               return remove(p,v);
             }
           }
           else{
@@ -1249,13 +1253,17 @@ function crossfilter() {
           }
           return p;
         };
-        reduceInitial = function(){
+        r_init = function(){
+          if(init == undefined){
+            return {};
+          }
           return init;
         };
-        return group;
+        return reduce(r_add, r_remove, r_init);
       }
-      function build_group_values(group_keys, v){
+      function build_group_values(reduce_id, group_keys, v){
         var values = []
+        values.push(reduce_id);
         for(var j = 0; j < group_keys.length; j++){
         if(group_keys[j] in v){
            values.push(v[group_keys[j]]); 
