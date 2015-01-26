@@ -545,7 +545,7 @@ function crossfilter() {
       filterListeners = [], // when the filters change
       dataListeners = [], // when data is added
       removeDataListeners = [], // when data is removed
-      reduce_hash = {};
+      reduce_hash = {}; // hash for pivot reduce
 
   // Adds the specified new records to this crossfilter.
   function add(newData) {
@@ -877,6 +877,7 @@ function crossfilter() {
         reduce: reduce,
         reduceCount: reduceCount,
         pivotReduceCount: pivotReduceCount,
+        pivotReduce: pivotReduce,
         reduceSum: reduceSum,
         order: order,
         orderNatural: orderNatural,
@@ -1183,12 +1184,10 @@ function crossfilter() {
         resetNeeded = true;
         return group;
       }
-
       // A convenience method for reducing by count.
       function reduceCount() {
         return reduce(crossfilter_reduceIncrement, crossfilter_reduceDecrement, crossfilter_zero);
       }
-
       //Reduce count using pivot identifier
       function pivotReduceCount(keys){
         reduceAdd = function(p,v){
@@ -1201,7 +1200,6 @@ function crossfilter() {
             p = p + 1;
           }
           return p;
-
         };
         reduceRemove = function reduceRemove(p,v){ 
           var values = build_group_values(keys,  v);
@@ -1224,7 +1222,7 @@ function crossfilter() {
         return group;
       }
     //Reduce using pivot identifier
-      function pivotReduceCount(keys, add, remove, init){
+      function pivotReduce(keys, add, remove, init){
         reduceAdd = function(p,v){
           var values = build_group_values(keys, v);
           if(reduce_hash[values] > 0){
@@ -1232,10 +1230,9 @@ function crossfilter() {
           }
           else{
             reduce_hash[values] = 1;
-            add(p,v);
+            p = add(p,v);
           }
           return p;
-
         };
         reduceRemove = function reduceRemove(p,v){ 
           var values = build_group_values(keys,  v);
@@ -1243,7 +1240,7 @@ function crossfilter() {
             reduce_hash[values] = reduce_hash[values] -1;
             if(reduce_hash[values] < 1){
               if(p > 0){
-                remove(p,v);
+               p =  remove(p,v);
               }
             }
           }
@@ -1257,7 +1254,6 @@ function crossfilter() {
         };
         return group;
       }
-
       function build_group_values(group_keys, v){
         var values = []
         for(var j = 0; j < group_keys.length; j++){
@@ -1266,12 +1262,10 @@ function crossfilter() {
           }
          else{
           values.push(group_keys[j]);
-
            }
         }
         return values;
       }
-
 
       // A convenience method for reducing by sum(value).
       function reduceSum(value) {
