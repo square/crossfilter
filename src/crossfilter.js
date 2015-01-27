@@ -665,7 +665,7 @@ function crossfilter() {
       function pivotReduceCount(keys){
         var reduce_id = reduce_hash_count;
         reduce_hash_count++;
-        reduceAdd = function add(p,v){
+        reduceAdd = function(p,v){
           var values = build_group_values(reduce_id, keys, v);
           if(reduce_hash[values] > 0){
             reduce_hash[values] = reduce_hash[values] + 1;
@@ -676,7 +676,7 @@ function crossfilter() {
           }
           return p;
         };
-        reduceRemove = function remove(p,v){ 
+        reduceRemove = function(p,v){ 
           var values = build_group_values(reduce_id, keys,  v);
           if(reduce_hash[values] > 0){
             reduce_hash[values] = reduce_hash[values] -1;
@@ -700,7 +700,7 @@ function crossfilter() {
       function pivotReduce(keys, add, remove, init){
         var reduce_id = reduce_hash_count;
         reduce_hash_count++;
-        r_add = function reduceAdd(p,v){
+        reduceAdd  = function(p,v){
           var values = build_group_values(reduce_id, keys, v);
           values
           if(reduce_hash[values] > 0){
@@ -712,7 +712,7 @@ function crossfilter() {
           }
           return p;
         };
-        r_remove = function reduceRemove(p,v){ 
+        reduceRemove = function(p,v){ 
           var values = build_group_values(reduce_id, keys,  v);
           if(reduce_hash[values] > 0){
             reduce_hash[values] = reduce_hash[values] -1;
@@ -725,16 +725,11 @@ function crossfilter() {
           }
           return p;
         };
-        r_init = function(){
-          if(init == undefined){
-            return {};
-          }
-          return init;
-        };
-        return reduce(r_add, r_remove, r_init);
+        reduceInitial = init;
+        return reduce(reduceAdd, reduceRemove, reduceInitial);
       }
       function build_group_values(reduce_id, group_keys, v){
-        var values = []
+        var values = [];
         values.push(reduce_id);
         for(var j = 0; j < group_keys.length; j++){
         if(group_keys[j] in v){
