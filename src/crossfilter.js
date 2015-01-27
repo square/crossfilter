@@ -16,7 +16,9 @@ function crossfilter() {
       filters = crossfilter_array8(0), // M bits per record; 1 is filtered out
       filterListeners = [], // when the filters change
       dataListeners = [], // when data is added
-      removeDataListeners = []; // when data is removed
+      removeDataListeners = [], // when data is removed
+      reduce_hash_count = 0,
+      reduce_hash = {}; // hash for pivot reduce
 
   // Adds the specified new records to this crossfilter.
   function add(newData) {
@@ -347,6 +349,8 @@ function crossfilter() {
         all: all,
         reduce: reduce,
         reduceCount: reduceCount,
+        pivotReduceCount: pivotReduceCount,
+        pivotReduce: pivotReduce,
         reduceSum: reduceSum,
         order: order,
         orderNatural: orderNatural,
@@ -653,10 +657,89 @@ function crossfilter() {
         resetNeeded = true;
         return group;
       }
-
       // A convenience method for reducing by count.
       function reduceCount() {
         return reduce(crossfilter_reduceIncrement, crossfilter_reduceDecrement, crossfilter_zero);
+      }
+      //Reduce count using pivot identifier
+      function pivotReduceCount(keys){
+        var reduce_id = reduce_hash_count;
+        reduce_hash_count++;
+        reduceAdd = function(p,v){
+          var values = build_group_values(reduce_id, keys, v);
+          if(reduce_hash[values] > 0){
+            reduce_hash[values] = reduce_hash[values] + 1;
+          }
+          else{
+            reduce_hash[values] = 1;
+            p = p + 1;
+          }
+          return p;
+        };
+        reduceRemove = function(p,v){ 
+          var values = build_group_values(reduce_id, keys,  v);
+          if(reduce_hash[values] > 0){
+            reduce_hash[values] = reduce_hash[values] -1;
+            if(reduce_hash[values] < 1){
+              if(p > 0){
+                p =  p - 1;
+              }
+            }
+          }
+          else{
+            reduce_hash[values] = -1;
+          }
+          return p;
+        };
+        reduceInitial = function(){
+          return 0;
+        };
+        return group;
+      }
+    //Reduce using pivot identifier
+      function pivotReduce(keys, add, remove, init){
+        var reduce_id = reduce_hash_count;
+        reduce_hash_count++;
+        reduceAdd  = function(p,v){
+          var values = build_group_values(reduce_id, keys, v);
+          values
+          if(reduce_hash[values] > 0){
+            reduce_hash[values] = reduce_hash[values] + 1;
+          }
+          else{
+            reduce_hash[values] = 1;
+            return add(p,v);
+          }
+          return p;
+        };
+        reduceRemove = function(p,v){ 
+          var values = build_group_values(reduce_id, keys,  v);
+          if(reduce_hash[values] > 0){
+            reduce_hash[values] = reduce_hash[values] -1;
+            if(reduce_hash[values] < 1){
+               return remove(p,v);
+            }
+          }
+          else{
+            reduce_hash[values] = -1;
+          }
+          return p;
+        };
+        reduceInitial = init;
+        return reduce(reduceAdd, reduceRemove, reduceInitial);
+      }
+      function build_group_values(reduce_id, group_keys, v){
+        var values = [];
+        values.push(reduce_id);
+        for(var j = 0; j < group_keys.length; j++){
+        if(group_keys[j] in v){
+           values.push(v[group_keys[j]]); 
+          }
+         else{
+          values.push(group_keys[j]);
+           }
+        }
+        return values;
       }
 
       // A convenience method for reducing by sum(value).
@@ -737,10 +820,10 @@ function crossfilter() {
     };
 
     var reduceValue,
-        reduceAdd,
-        reduceRemove,
-        reduceInitial,
-        resetNeeded = true;
+    reduceAdd,
+    reduceRemove,
+    reduceInitial,
+    resetNeeded = true;
 
     // The group listens to the crossfilter for when any dimension changes, so
     // that it can update the reduce value. It must also listen to the parent
@@ -768,8 +851,8 @@ function crossfilter() {
     // Reduces the specified selected or deselected records.
     function update(filterOne, added, removed) {
       var i,
-          k,
-          n;
+      k,
+      n;
 
       if (resetNeeded) return;
 
@@ -845,16 +928,16 @@ function crossfilter() {
   }
 
   return arguments.length
-      ? add(arguments[0])
-      : crossfilter;
+  ? add(arguments[0])
+  : crossfilter;
 }
 
 // Returns an array of size n, big enough to store ids up to m.
 function crossfilter_index(n, m) {
   return (m < 0x101
-      ? crossfilter_array8 : m < 0x10001
-      ? crossfilter_array16
-      : crossfilter_array32)(n);
+    ? crossfilter_array8 : m < 0x10001
+    ? crossfilter_array16
+  : crossfilter_array32)(n);
 }
 
 // Constructs a new array of size n, with sequential values from 0 to n - 1.
@@ -866,7 +949,7 @@ function crossfilter_range(n) {
 
 function crossfilter_capacity(w) {
   return w === 8
-      ? 0x100 : w === 16
-      ? 0x10000
-      : 0x100000000;
+  ? 0x100 : w === 16
+  ? 0x10000
+  : 0x100000000;
 }
