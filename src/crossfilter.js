@@ -348,6 +348,7 @@ function crossfilter() {
         reduce: reduce,
         reduceCount: reduceCount,
         reduceSum: reduceSum,
+        reduceObj: reduceObj,
         order: order,
         orderNatural: orderNatural,
         size: size,
@@ -662,6 +663,11 @@ function crossfilter() {
       // A convenience method for reducing by sum(value).
       function reduceSum(value) {
         return reduce(crossfilter_reduceAdd(value), crossfilter_reduceSubtract(value), crossfilter_zero);
+      }
+
+      // A convenience method for supplying reduce behaviour as a single object.
+      function reduceObj(obj) {
+        return reduce(obj.add, obj.remove, obj.initial);
       }
 
       // Sets the reduce order, using the specified accessor.
