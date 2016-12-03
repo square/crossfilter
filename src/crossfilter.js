@@ -647,9 +647,9 @@ function crossfilter() {
       // Sets the reduce behavior for this group to use the specified functions.
       // This method lazily recomputes the reduce values, waiting until needed.
       function reduce(add, remove, initial) {
-        reduceAdd = add;
-        reduceRemove = remove;
-        reduceInitial = initial;
+        reduceAdd = add.add ? add.add : add;
+        reduceRemove = add.remove ? add.remove : remove;
+        reduceInitial = add.init ? add.init : initial;
         resetNeeded = true;
         return group;
       }
