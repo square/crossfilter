@@ -1,3 +1,5 @@
+Newly created [Crossfilter Organization](https://github.com/crossfilter) now actively maintains [a fork of this repo.](https://github.com/crossfilter/crossfilter). See below for details.
+
 # Crossfilter
 
 **Crossfilter** is a JavaScript library for exploring large multivariate datasets in the browser. Crossfilter supports extremely fast (<30ms) interaction with coordinated views, even with datasets containing a million or more records; we built it to power analytics for Square Register, allowing merchants to slice and dice their payment history fluidly.
