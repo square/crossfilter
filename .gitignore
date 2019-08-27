@@ -1,2 +1,4 @@
 .DS_Store
 node_modules
+# as a library, we don't want to include package-lock.json
+package-lock.json

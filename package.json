@@ -32,9 +32,10 @@
   "devDependencies": {
     "d3": "3",
     "vows": "0.7.0",
-    "uglify-js": "2.4.0"
+    "uglify-js": "2.6.0"
   },
   "scripts": {
-    "test": "./node_modules/.bin/vows"
+    "test": "./node_modules/.bin/vows",
+    "build": "./node_modules/.bin/uglifyjs crossfilter.js -o crossfilter.min.js"
   }
 }

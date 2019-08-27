@@ -2,6 +2,9 @@ Newly created [Crossfilter Organization](https://github.com/crossfilter) now act
 
 # Crossfilter
 
+[![license](https://img.shields.io/badge/license-apache_2.0-blue.svg?style=flat)](https://raw.githubusercontent.com/square/crossfilter/master/LICENSE)
+[![build](https://travis-ci.org/square/crossfilter.svg?branch=master)](https://travis-ci.org/square/crossfilter)
+
 **Crossfilter** is a JavaScript library for exploring large multivariate datasets in the browser. Crossfilter supports extremely fast (<30ms) interaction with coordinated views, even with datasets containing a million or more records; we built it to power analytics for Square Register, allowing merchants to slice and dice their payment history fluidly.
 
 Since most interactions only involve a single dimension, and then only small adjustments are made to the filter values, incremental filtering and reducing is significantly faster than starting from scratch. Crossfilter uses sorted indexes (and a few bit-twiddling hacks) to make this possible, dramatically increasing the performance of live histograms and top-K lists. Crossfilter is available under the [Apache License](/LICENSE).
