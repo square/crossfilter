@@ -16,7 +16,7 @@ suite.addBatch({
       start = Date.now();
       sort(typedArray, 0, n);
       duration = Date.now() - start;
-      assert.lesser(duration, 600);
+      assert.lesser(duration, 1200);
       for (var i = 1; i < n; i++) assert(typedArray[i - 1] <= typedArray[i]);
     }
   })
