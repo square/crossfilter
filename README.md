@@ -1,4 +1,4 @@
-Newly created [Crossfilter Organization](https://github.com/crossfilter) now actively maintains [a fork of this repo.](https://github.com/crossfilter/crossfilter). See below for details.
+Newly created [Crossfilter Organization](https://github.com/crossfilter) now actively maintains [a fork of this repo](https://github.com/crossfilter/crossfilter). See below for details.
 
 # Crossfilter
 
